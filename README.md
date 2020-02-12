@@ -1,8 +1,8 @@
 # react-native-msal
 
-<div style="text-align:center">
+<p align="center">
   <img src="_assets/ReactNativeMSALLogo.png" width="300">
-</div>
+</p>
 
 ## Getting started
 
