@@ -26,11 +26,8 @@ Requires React Native >=0.61
 
 ## Android Setup
 
-1. Follow steps **1 through 3** of the [Using MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal) section of the Android MSAL docs.
-
-2. In your `MainApplication.java`, put the following line at the end of the `onCreate` method to let the RNMSAL package know where your MSAL configuration file is:
-
-   `RNMSALModule.setMsalConfigResourceId(R.raw.msal_config);`
+1. Follow steps **1 through 3** of the [Using MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal) section of the Android MSAL docs.  
+   **IMPORTANT**: For Step 2, you **MUST** create a file in your assets folder (`android/app/src/main/assets`) named `msal_config.json` containing your MSAL configuration. If you don't have an `assets` folder already, you will have to create one
 
 ## iOS Setup
 
