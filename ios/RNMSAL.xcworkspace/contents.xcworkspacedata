@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Msal.xcodeproj">
+      location = "group:/Users/joshua/Projects/new-msal/react-native-msal/ios/RNMSAL.xcodeproj">
    </FileRef>
 </Workspace>

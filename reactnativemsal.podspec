@@ -10,10 +10,11 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "9.0" }
+  s.platforms    = { :ios => "10.0" }
   s.source       = { :git => "https://github.com/stashenergy/react-native-msal", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m}"
 
   s.dependency "React"
+  s.dependency "MSAL"
 end

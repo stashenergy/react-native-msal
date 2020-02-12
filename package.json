@@ -1,6 +1,6 @@
 {
   "name": "react-native-msal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React Native wrapper for iOS and Android",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -21,7 +21,11 @@
     "example": "yarn --cwd example",
     "bootstrap": "yarn example && yarn && cd example/ios && pod install"
   },
-  "keywords": ["react-native", "ios", "android"],
+  "keywords": [
+    "react-native",
+    "ios",
+    "android"
+  ],
   "repository": "https://github.com/stashenergy/react-native-msal",
   "author": "Stash Energy <info@stash.energy> (https://stash.energy)",
   "license": "MIT",
@@ -53,7 +57,9 @@
   },
   "jest": {
     "preset": "react-native",
-    "modulePathIgnorePatterns": ["<rootDir>/lib/"]
+    "modulePathIgnorePatterns": [
+      "<rootDir>/lib/"
+    ]
   },
   "husky": {
     "hooks": {
@@ -62,7 +68,10 @@
     }
   },
   "eslintConfig": {
-    "extends": ["@react-native-community", "prettier"],
+    "extends": [
+      "@react-native-community",
+      "prettier"
+    ],
     "rules": {
       "prettier/prettier": [
         "error",
@@ -70,7 +79,8 @@
           "singleQuote": true,
           "tabWidth": 2,
           "trailingComma": "es5",
-          "useTabs": false
+          "useTabs": false,
+          "printWidth": 120
         }
       ]
     }
@@ -78,6 +88,10 @@
   "@react-native-community/bob": {
     "source": "src",
     "output": "lib",
-    "targets": ["commonjs", "module", "typescript"]
+    "targets": [
+      "commonjs",
+      "module",
+      "typescript"
+    ]
   }
 }

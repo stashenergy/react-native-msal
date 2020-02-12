@@ -1,0 +1,17 @@
+{
+  "client_id": "<CLIENT_ID>",
+  "redirect_uri": "msauth://com.example/P6akJ4YYsuUDahjqGra9mAflzdA%3D",
+  "account_mode": "MULTIPLE",
+  "broker_redirect_uri_registered": false,
+  "authorities": [
+    {
+      "type": "B2C",
+      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/B2C_1A_SignInUp_Native",
+      "default": true
+    },
+    {
+      "type": "B2C",
+      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/B2C_1A_PasswordReset_Native"
+    }
+  ]
+}
