@@ -65,7 +65,7 @@ const result = await msalClient.acquireTokenSilent({
 
 // Removes all tokens from the cache for the specified account
 // A call to acquireToken will be required for acquiring subsequent access tokens
-const result = await msalClient.removeAccount({
+await msalClient.removeAccount({
   authority,
   accountIdentifier: result.account.identifier,
 });
