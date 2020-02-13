@@ -49,6 +49,7 @@
     "prettier": "^1.19.1",
     "react": "~16.9.0",
     "react-native": "~0.61.5",
+    "semantic-release": "^17.0.3",
     "typescript": "^3.7.5"
   },
   "peerDependencies": {

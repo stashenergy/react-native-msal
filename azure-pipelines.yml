@@ -4,25 +4,25 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  - master
 
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: UseNode@1
-  inputs:
-    version: '13.x'
-- script: yarn install
-  displayName: Install dependencies
-- script: yarn typescript
-  displayName: Compile Typescript
-- script: yarn lint
-  displayName: Lint
-- script: yarn test
-  displayName: Test
-- task: Npm@1
-  inputs:
-    command: 'publish'
-    publishEndpoint: 'Stash Energy NPM'
-  displayName: Publish
+  - task: UseNode@1
+    inputs:
+      version: '13.x'
+  - script: yarn install
+    displayName: Install dependencies
+  - script: yarn typescript
+    displayName: Compile Typescript
+  - script: yarn lint
+    displayName: Lint
+  - script: yarn test
+    displayName: Test
+  - script: npx semantic-release
+    env:
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      NPM_TOKEN: ${NPM_TOKEN}
+    displayName: Semantic release
