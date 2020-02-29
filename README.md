@@ -1,6 +1,6 @@
 # react-native-msal
 
-[![npm version](https://badge.fury.io/js/react-native-msal.svg)](https://www.npmjs.com/package/react-native-msal)
+[![npm latest version](https://img.shields.io/npm/v/react-native-msal/latest.svg)](https://www.npmjs.com/package/react-native-msal)
 [![Build Status](https://dev.azure.com/stashenergy/react-native-msal/_apis/build/status/stashenergy.react-native-msal?branchName=master)](https://dev.azure.com/stashenergy/react-native-msal/_build/latest?definitionId=58&branchName=master)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
