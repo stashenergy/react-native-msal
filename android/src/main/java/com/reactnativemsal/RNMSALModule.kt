@@ -4,7 +4,6 @@ import android.util.Pair
 import com.facebook.react.bridge.*
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.exception.MsalException
-import org.apache.commons.io.FileUtils
 import java.io.File
 
 class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
