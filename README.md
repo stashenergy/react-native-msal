@@ -22,15 +22,15 @@ Requires React Native >=0.61
      - ex: `msauth.energy.stash.msal.example://auth`
    - Android: `msauth://<PACKAGE>/<BASE64_URL_ENCODED_PACKAGE_SIGNATURE>`
      - ex: `msauth://energy.stash.msal.example/ab%4E1lPIzBP2j9uELdUz%2BcarjgxQ%3D`
-     - Get your package signature from your `*.keystore`, or from the Google Play console if you have automatic app signing turned on. For local debugging you can enter this command to read your `debug.keystore`:  
+     - Get your package signature from your `*.keystore`, or from the Google Play console if you have automatic app signing turned on. For local debugging you can enter this command to read your `debug.keystore`:
        `keytool -list -v -keystore path/to/debug.keystore -alias androiddebugkey -storepass android -keypass android`
-     - Convert the SHA1 signature to base64:  
+     - Convert the SHA1 signature to base64:
        `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`
      - URL-encode the base64 string
 
 ## Android Setup
 
-1. Follow steps **1 through 3** of the [Using MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal) section of the Android MSAL docs.  
+1. Follow steps **1 through 3** of the [Using MSAL](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal) section of the Android MSAL docs.
    **IMPORTANT**: For Step 2, you **MUST** create a file in your assets folder (`android/app/src/main/assets`) named `msal_config.json` containing your MSAL configuration. If you don't have an `assets` folder already, you will have to create one
 
 ## iOS Setup
@@ -70,6 +70,13 @@ const result = await msalClient.acquireTokenSilent({
 // Removes all tokens from the cache for the specified account
 // A call to acquireToken will be required for acquiring subsequent access tokens
 await msalClient.removeAccount({
+  authority,
+  accountIdentifier: result.account.identifier,
+});
+
+// Sign out from B2C for the specified account
+// Only available on iOS platform
+await msalClient.signoutWithAccount({
   authority,
   accountIdentifier: result.account.identifier,
 });

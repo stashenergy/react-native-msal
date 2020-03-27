@@ -148,6 +148,49 @@ RCT_REMAP_METHOD(removeAccount,
     }
 }
 
+RCT_REMAP_METHOD(signoutWithAccount,
+                 signoutParams:(NSDictionary*)params
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
+{
+    @try {
+        NSError *msalError = nil;
+
+        // Required parameters
+        NSString *authority = [RCTConvert NSString:params[@"authority"]];
+        NSString *clientId = [RCTConvert NSString:params[@"clientId"]];
+        NSString *accountIdentifier = [RCTConvert NSString:params[@"accountIdentifier"]];
+
+        MSALPublicClientApplication* application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
+
+        if (msalError) {
+            @throw msalError;
+        }
+
+        MSALAccount *account = [application accountForIdentifier:accountIdentifier error:&msalError];
+
+        if (msalError) {
+            @throw msalError;
+        }
+        
+        UIViewController *viewController = [UIViewController currentViewController];
+        MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
+        MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];
+
+        [application signoutWithAccount:account signoutParameters:signoutParameters completionBlock:^(BOOL success, NSError * _Nullable error) {
+            if (!error) {
+                resolve([NSNull null]);
+            } else {
+                reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+            }
+        }];
+
+    } @catch(NSError *error) {
+        reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+    }
+}
+
+
 - (NSDictionary*)MSALResultToDictionary:(MSALResult*)result withAuthority:(NSString*)authority
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1];
