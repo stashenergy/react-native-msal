@@ -46,6 +46,10 @@ export interface MSALRemoveAccountParams extends MSALParams {
   accountIdentifier: string;
 }
 
+export interface MSALSignoutWithAccountParams extends MSALParams {
+  accountIdentifier: string;
+}
+
 export default class MSALClient {
   constructor(private clientId: string) {}
 
@@ -97,5 +101,16 @@ export default class MSALClient {
    */
   public removeAccount = (params: MSALRemoveAccountParams): Promise<void> => {
     return RNMSAL.removeAccount({ clientId: this.clientId, ...params });
+  };
+
+  /**
+   * Sign out from B2C for the secified account
+   * @param {MSALSignoutWithAccountParams} params
+   * @return {Promise<void>} A promise which resolves if sign out is successful,
+   * otherwise rejects
+   * @platform android
+   */
+  public signoutWithAccount = (params: MSALSignoutWithAccountParams): Promise<void> => {
+    return RNMSAL.signoutWithAccount({ clientId: this.clientId, ...params });
   };
 }

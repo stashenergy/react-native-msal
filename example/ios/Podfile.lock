@@ -19,9 +19,9 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - MSAL (1.0.7):
-    - MSAL/app-lib (= 1.0.7)
-  - MSAL/app-lib (1.0.7)
+  - MSAL (1.1.0):
+    - MSAL/app-lib (= 1.1.0)
+  - MSAL/app-lib (1.1.0)
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
     - FBLazyVector (= 0.61.5)
@@ -220,7 +220,7 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
     - ReactCommon/jscallinvoker (= 0.61.5)
-  - reactnativemsal (1.0.0):
+  - reactnativemsal (1.0.3):
     - MSAL
     - React
   - Yoga (1.14.0)
@@ -322,7 +322,7 @@ SPEC CHECKSUMS:
   FBReactNativeSpec: 118d0d177724c2d67f08a59136eb29ef5943ec75
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  MSAL: e4c1cbcf59e04073b427ce9fbfc0346b54abb62e
+  MSAL: 917b8c60ac97dcf50ac5ff987f9f971fb665f7c0
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78
@@ -342,9 +342,9 @@ SPEC CHECKSUMS:
   React-RCTText: 9ccc88273e9a3aacff5094d2175a605efa854dbe
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
-  reactnativemsal: 7bd79779cdd3d26eb958a8c6802171997b9b370e
+  reactnativemsal: d7733e73fc0f00e53e4bcd2f89fc5952e3a166e0
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
 PODFILE CHECKSUM: e9e0fbe3f0c0b1c1384a48afe904daf373dbb2de
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.0
