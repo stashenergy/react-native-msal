@@ -221,7 +221,7 @@ PODS:
     - React-jsi (= 0.61.5)
     - ReactCommon/jscallinvoker (= 0.61.5)
   - reactnativemsal (1.0.3):
-    - MSAL
+    - MSAL (= 1.1.0)
     - React
   - Yoga (1.14.0)
 
@@ -342,9 +342,9 @@ SPEC CHECKSUMS:
   React-RCTText: 9ccc88273e9a3aacff5094d2175a605efa854dbe
   React-RCTVibration: a49a1f42bf8f5acf1c3e297097517c6b3af377ad
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
-  reactnativemsal: d7733e73fc0f00e53e4bcd2f89fc5952e3a166e0
+  reactnativemsal: 30a02ded365d1c84878a62691608662252716455
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 
 PODFILE CHECKSUM: e9e0fbe3f0c0b1c1384a48afe904daf373dbb2de
 
-COCOAPODS: 1.9.0
+COCOAPODS: 1.9.1

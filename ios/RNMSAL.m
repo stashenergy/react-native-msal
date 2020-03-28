@@ -148,7 +148,7 @@ RCT_REMAP_METHOD(removeAccount,
     }
 }
 
-RCT_REMAP_METHOD(signoutWithAccount,
+RCT_REMAP_METHOD(signout,
                  signoutParams:(NSDictionary*)params
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
@@ -172,7 +172,7 @@ RCT_REMAP_METHOD(signoutWithAccount,
         if (msalError) {
             @throw msalError;
         }
-        
+
         UIViewController *viewController = [UIViewController currentViewController];
         MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
         MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];

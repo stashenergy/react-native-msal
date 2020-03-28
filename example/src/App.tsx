@@ -60,10 +60,10 @@ export default function App() {
       }
     }
   };
-  const signoutWithAccount = async () => {
+  const signout = async () => {
     if (authResult) {
       try {
-        await msalClient.signoutWithAccount({
+        await msalClient.signout({
           authority: msalConfig.sisuAuthority,
           accountIdentifier: authResult.account.identifier,
         });
@@ -76,12 +76,10 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Acquire Token (Interactive)" onPress={acquireToken} />
-      <Button title="Acquire Token (Silent)" onPress={acquireTokenSilent} disabled={!authResult} />
+      <Button title="Acquire Token" onPress={acquireToken} />
+      <Button title="Acquire Token Silently" onPress={acquireTokenSilent} disabled={!authResult} />
       <Button title="Remove account" onPress={removeAccount} disabled={!authResult} />
-      {Platform.OS === 'ios' && (
-        <Button title="Sign out with account" onPress={signoutWithAccount} disabled={!authResult} />
-      )}
+      {Platform.OS === 'ios' && <Button title="Sign out (iOS only)" onPress={signout} disabled={!authResult} />}
       <ScrollView>
         <Text>{JSON.stringify(authResult, null, 4)}</Text>
       </ScrollView>

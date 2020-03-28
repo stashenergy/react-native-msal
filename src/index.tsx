@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 const { RNMSAL } = NativeModules;
 
 export interface MSALResult {
@@ -46,7 +46,7 @@ export interface MSALRemoveAccountParams extends MSALParams {
   accountIdentifier: string;
 }
 
-export interface MSALSignoutWithAccountParams extends MSALParams {
+export interface MSALSignoutParams extends MSALParams {
   accountIdentifier: string;
 }
 
@@ -94,7 +94,8 @@ export default class MSALClient {
   };
 
   /**
-   * Remove all the tokens for the secified account
+   * Removes all tokens from the cache for this application for the provided
+   * account.
    * @param {MSALRemoveAccountParams} params
    * @return {Promise<void>} A promise which resolves if remove is successful,
    * otherwise rejects
@@ -104,13 +105,17 @@ export default class MSALClient {
   };
 
   /**
-   * Sign out from B2C for the secified account
-   * @param {MSALSignoutWithAccountParams} params
+   * NOTE: iOS only. On Android this is the same as `removeAccount`
+   * Removes all tokens from the cache for this application for the provided
+   * account. Additionally, this will remove the account from the system browser.
+   * @param {MSALSignoutParams} params
    * @return {Promise<void>} A promise which resolves if sign out is successful,
    * otherwise rejects
-   * @platform android
+   * @platform ios
    */
-  public signoutWithAccount = (params: MSALSignoutWithAccountParams): Promise<void> => {
-    return RNMSAL.signoutWithAccount({ clientId: this.clientId, ...params });
+  public signout = (params: MSALSignoutParams): Promise<void> => {
+    return Platform.OS === 'ios'
+      ? RNMSAL.signout({ clientId: this.clientId, ...params })
+      : RNMSAL.removeAccount({ clientId: this.clientId, ...params });
   };
 }
