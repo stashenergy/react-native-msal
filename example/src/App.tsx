@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, Button, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, Button, SafeAreaView, ScrollView, Platform } from 'react-native';
 import MSALCLient, { MSALResult } from 'react-native-msal';
 
 // Example config, modify to your needs
@@ -60,12 +60,26 @@ export default function App() {
       }
     }
   };
+  const signout = async () => {
+    if (authResult) {
+      try {
+        await msalClient.signout({
+          authority: msalConfig.sisuAuthority,
+          accountIdentifier: authResult.account.identifier,
+        });
+        setAuthResult(null);
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button title="Acquire Token (Interactive)" onPress={acquireToken} />
-      <Button title="Acquire Token (Silent)" onPress={acquireTokenSilent} disabled={!authResult} />
+      <Button title="Acquire Token" onPress={acquireToken} />
+      <Button title="Acquire Token Silently" onPress={acquireTokenSilent} disabled={!authResult} />
       <Button title="Remove account" onPress={removeAccount} disabled={!authResult} />
+      {Platform.OS === 'ios' && <Button title="Sign out (iOS only)" onPress={signout} disabled={!authResult} />}
       <ScrollView>
         <Text>{JSON.stringify(authResult, null, 4)}</Text>
       </ScrollView>
