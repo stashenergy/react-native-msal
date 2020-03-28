@@ -46,6 +46,7 @@ export default function App() {
       }
     }
   };
+
   const removeAccount = async () => {
     if (authResult) {
       try {
