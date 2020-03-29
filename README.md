@@ -49,8 +49,7 @@ const authority = '<authority>';
 const scopes = ['scope'];
 const msalClient = new MSALClient(clientId);
 
-// The first time signing in you must use this call to perform
-// an interactive login
+// The first time signing in you must use this call to perform an interactive login
 // Use the token from result.accessToken to call your API
 // See when the token expires with result.expiresOn
 // Store result.account.identifier for acquiring tokens silently or clearing the token cache
@@ -67,16 +66,18 @@ const result = await msalClient.acquireTokenSilent({
   accountIdentifier: result.account.identifier,
 });
 
-// Removes all tokens from the cache for the specified account
+// Removes all tokens from the cache for this application for the provided account
 // A call to acquireToken will be required for acquiring subsequent access tokens
 await msalClient.removeAccount({
   authority,
   accountIdentifier: result.account.identifier,
 });
 
-// Sign out from B2C for the specified account
-// Only available on iOS platform
-await msalClient.signoutWithAccount({
+// Removes all tokens from the cache for this application for the provided account
+// Additionally, this will remove the account from the system browser
+// A call to acquireToken will be required for acquiring subsequent access tokens
+// Only available on iOS platform, falls back to `removeAccount` on Android
+await msalClient.signout({
   authority,
   accountIdentifier: result.account.identifier,
 });
@@ -90,6 +91,7 @@ To run the example, first:
 2. Add the redirect URLs in your tenant:
    - Android: `msauth://com.example/P6akJ4YYsuUDahjqGra9mAflzdA%3D`
    - iOS: `msauth.com.example://auth`
+3. Update the `msalConfig` object in `App.tsx` with your details
 
 ### Android
 
