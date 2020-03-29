@@ -114,8 +114,6 @@ export default class MSALClient {
    * @platform ios
    */
   public signout = (params: MSALSignoutParams): Promise<void> => {
-    return Platform.OS === 'ios'
-      ? RNMSAL.signout({ clientId: this.clientId, ...params })
-      : RNMSAL.removeAccount({ clientId: this.clientId, ...params });
+    return Platform.OS === 'ios' ? RNMSAL.signout({ clientId: this.clientId, ...params }) : this.removeAccount(params);
   };
 }
