@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, Text, Button, SafeAreaView, ScrollView, Platform } from 'react-native';
+import { StyleSheet, Text, Button, SafeAreaView, ScrollView, Platform, Switch, View } from 'react-native';
 import MSALCLient, { MSALResult } from 'react-native-msal';
 
 // Example config, modify to your needs
@@ -15,6 +15,7 @@ const msalClient = new MSALCLient(msalConfig.clientId);
 
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
+  const [privateAuthSession, setPrivateAuthSession] = React.useState<boolean>(false);
 
   const handleResult = (result: MSALResult) => {
     setAuthResult(result);
@@ -25,6 +26,7 @@ export default function App() {
       const res = await msalClient.acquireToken({
         authority: msalConfig.sisuAuthority,
         scopes: msalConfig.scopes,
+        privateAuthSession,
       });
       handleResult(res);
     } catch (error) {
@@ -66,6 +68,7 @@ export default function App() {
         await msalClient.signout({
           authority: msalConfig.sisuAuthority,
           accountIdentifier: authResult.account.identifier,
+          privateAuthSession,
         });
         setAuthResult(null);
       } catch (error) {
@@ -80,6 +83,12 @@ export default function App() {
       <Button title="Acquire Token Silently" onPress={acquireTokenSilent} disabled={!authResult} />
       <Button title="Remove account" onPress={removeAccount} disabled={!authResult} />
       {Platform.OS === 'ios' && <Button title="Sign out (iOS only)" onPress={signout} disabled={!authResult} />}
+      {Platform.OS === 'ios' && (
+        <View style={styles.switch}>
+          <Text onPress={() => setPrivateAuthSession(!privateAuthSession)}>Private auth session? (iOS only)</Text>
+          <Switch value={privateAuthSession} onValueChange={setPrivateAuthSession} />
+        </View>
+      )}
       <ScrollView>
         <Text>{JSON.stringify(authResult, null, 4)}</Text>
       </ScrollView>
@@ -92,5 +101,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 4,
+  },
+  switch: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });

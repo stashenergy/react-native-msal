@@ -32,6 +32,7 @@ RCT_REMAP_METHOD(acquireToken,
         NSString *loginHint = [RCTConvert NSString:params[@"loginHint"]];
         NSDictionary<NSString*,NSString*> *extraQueryParameters = [RCTConvert NSDictionary:params[@"extraQueryParameters"]];
         NSArray<NSString *> *extraScopesToConsent = [RCTConvert NSStringArray:params[@"extraScopesToConsent"]];
+        BOOL privateAuthSession = [RCTConvert BOOL:params[@"privateAuthSession"]];
 
         MSALPublicClientApplication *application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
 
@@ -42,6 +43,7 @@ RCT_REMAP_METHOD(acquireToken,
         // Configure interactive token parameters
         UIViewController *viewController = [UIViewController currentViewController];
         MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
+        webParameters.prefersEphemeralWebBrowserSession = privateAuthSession;
         MSALInteractiveTokenParameters *interactiveParams = [[MSALInteractiveTokenParameters alloc] initWithScopes:scopes webviewParameters:webParameters];
         interactiveParams.promptType = promptType;
         interactiveParams.loginHint = loginHint;
@@ -150,32 +152,36 @@ RCT_REMAP_METHOD(removeAccount,
 
 RCT_REMAP_METHOD(signout,
                  signoutParams:(NSDictionary*)params
-                 resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject)
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
 {
     @try {
-        NSError *msalError = nil;
+        NSError *msalError = nil;
 
-        // Required parameters
-        NSString *authority = [RCTConvert NSString:params[@"authority"]];
-        NSString *clientId = [RCTConvert NSString:params[@"clientId"]];
-        NSString *accountIdentifier = [RCTConvert NSString:params[@"accountIdentifier"]];
+        // Required parameters
+        NSString *authority = [RCTConvert NSString:params[@"authority"]];
+        NSString *clientId = [RCTConvert NSString:params[@"clientId"]];
+        NSString *accountIdentifier = [RCTConvert NSString:params[@"accountIdentifier"]];
+        
+        // Optional parameters
+        BOOL privateAuthSession = [RCTConvert BOOL:params[@"privateAuthSession"]];
 
-        MSALPublicClientApplication* application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
+        MSALPublicClientApplication* application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
 
-        if (msalError) {
-            @throw msalError;
-        }
+        if (msalError) {
+            @throw msalError;
+        }
 
-        MSALAccount *account = [application accountForIdentifier:accountIdentifier error:&msalError];
+        MSALAccount *account = [application accountForIdentifier:accountIdentifier error:&msalError];
 
-        if (msalError) {
-            @throw msalError;
-        }
+        if (msalError) {
+            @throw msalError;
+        }
 
         UIViewController *viewController = [UIViewController currentViewController];
-        MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
-        MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];
+        MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
+        webParameters.prefersEphemeralWebBrowserSession = privateAuthSession;
+        MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];
 
         [application signoutWithAccount:account signoutParameters:signoutParameters completionBlock:^(BOOL success, NSError * _Nullable error) {
             if (!error) {
