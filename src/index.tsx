@@ -29,11 +29,11 @@ export interface MSALParams {
 }
 
 // See https://azuread.github.io/microsoft-authentication-library-for-objc/Classes/MSALWebviewParameters.html
-export interface MSALWebViewParams {
-  privateAuthSession?: boolean; // iOS 13+
+export interface MSALWebviewParams {
+  ios_prefersEphemeralWebBrowserSession?: boolean; // iOS 13+
 }
 
-export interface MSALInterativeParams extends MSALParams, MSALWebViewParams {
+export interface MSALInterativeParams extends MSALParams, MSALWebviewParams {
   scopes: string[];
   promptType?: MSALPromptType;
   loginHint?: string;
@@ -51,7 +51,7 @@ export interface MSALRemoveAccountParams extends MSALParams {
   accountIdentifier: string;
 }
 
-export interface MSALSignoutParams extends MSALParams, MSALWebViewParams {
+export interface MSALSignoutParams extends MSALParams, MSALWebviewParams {
   accountIdentifier: string;
 }
 

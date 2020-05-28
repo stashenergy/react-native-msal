@@ -15,7 +15,7 @@ const msalClient = new MSALCLient(msalConfig.clientId);
 
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
-  const [privateAuthSession, setPrivateAuthSession] = React.useState<boolean>(false);
+  const [prefersEphemeralWebBrowserSession, setPrefersEphemeralWebBrowserSession] = React.useState<boolean>(false);
 
   const handleResult = (result: MSALResult) => {
     setAuthResult(result);
@@ -26,7 +26,7 @@ export default function App() {
       const res = await msalClient.acquireToken({
         authority: msalConfig.sisuAuthority,
         scopes: msalConfig.scopes,
-        privateAuthSession,
+        ios_prefersEphemeralWebBrowserSession: prefersEphemeralWebBrowserSession,
       });
       handleResult(res);
     } catch (error) {
@@ -68,7 +68,7 @@ export default function App() {
         await msalClient.signout({
           authority: msalConfig.sisuAuthority,
           accountIdentifier: authResult.account.identifier,
-          privateAuthSession,
+          ios_prefersEphemeralWebBrowserSession: prefersEphemeralWebBrowserSession,
         });
         setAuthResult(null);
       } catch (error) {
@@ -85,8 +85,20 @@ export default function App() {
       {Platform.OS === 'ios' && <Button title="Sign out (iOS only)" onPress={signout} disabled={!authResult} />}
       {Platform.OS === 'ios' && (
         <View style={styles.switch}>
-          <Text onPress={() => setPrivateAuthSession(!privateAuthSession)}>Private auth session? (iOS only)</Text>
-          <Switch value={privateAuthSession} onValueChange={setPrivateAuthSession} />
+          <View style={styles.switchSpacer} />
+          <View style={styles.switchLabel}>
+            <Text
+              onPress={() => setPrefersEphemeralWebBrowserSession(!prefersEphemeralWebBrowserSession)}
+              style={styles.text}
+            >
+              Prefer ephemeral web browser session?
+              {'\n'}
+              (iOS only)
+            </Text>
+          </View>
+          <View style={styles.switchSpacer}>
+            <Switch value={prefersEphemeralWebBrowserSession} onValueChange={setPrefersEphemeralWebBrowserSession} />
+          </View>
         </View>
       )}
       <ScrollView>
@@ -103,8 +115,17 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   switch: {
-    padding: 10,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  text: {
+    textAlign: 'center',
+  },
+  switchSpacer: {
+    flex: 1,
+  },
+  switchLabel: {
+    flexGrow: 0,
+    padding: 10,
   },
 });

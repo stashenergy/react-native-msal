@@ -32,7 +32,7 @@ RCT_REMAP_METHOD(acquireToken,
         NSString *loginHint = [RCTConvert NSString:params[@"loginHint"]];
         NSDictionary<NSString*,NSString*> *extraQueryParameters = [RCTConvert NSDictionary:params[@"extraQueryParameters"]];
         NSArray<NSString *> *extraScopesToConsent = [RCTConvert NSStringArray:params[@"extraScopesToConsent"]];
-        BOOL privateAuthSession = [RCTConvert BOOL:params[@"privateAuthSession"]];
+        BOOL prefersEphemeralWebBrowserSession = [RCTConvert BOOL:params[@"ios_prefersEphemeralWebBrowserSession"]];
 
         MSALPublicClientApplication *application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
 
@@ -43,7 +43,7 @@ RCT_REMAP_METHOD(acquireToken,
         // Configure interactive token parameters
         UIViewController *viewController = [UIViewController currentViewController];
         MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
-        webParameters.prefersEphemeralWebBrowserSession = privateAuthSession;
+        webParameters.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
         MSALInteractiveTokenParameters *interactiveParams = [[MSALInteractiveTokenParameters alloc] initWithScopes:scopes webviewParameters:webParameters];
         interactiveParams.promptType = promptType;
         interactiveParams.loginHint = loginHint;
@@ -164,7 +164,7 @@ RCT_REMAP_METHOD(signout,
         NSString *accountIdentifier = [RCTConvert NSString:params[@"accountIdentifier"]];
         
         // Optional parameters
-        BOOL privateAuthSession = [RCTConvert BOOL:params[@"privateAuthSession"]];
+        BOOL prefersEphemeralWebBrowserSession = [RCTConvert BOOL:params[@"ios_prefersEphemeralWebBrowserSession"]];
 
         MSALPublicClientApplication* application = [RNMSAL createClientApplicationWithClientId:clientId authority:authority error:&msalError];
 
@@ -180,7 +180,7 @@ RCT_REMAP_METHOD(signout,
 
         UIViewController *viewController = [UIViewController currentViewController];
         MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithParentViewController:viewController];
-        webParameters.prefersEphemeralWebBrowserSession = privateAuthSession;
+        webParameters.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
         MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];
 
         [application signoutWithAccount:account signoutParameters:signoutParameters completionBlock:^(BOOL success, NSError * _Nullable error) {
