@@ -33,7 +33,7 @@ export interface MSALWebviewParams {
   ios_prefersEphemeralWebBrowserSession?: boolean; // iOS 13+
 }
 
-export interface MSALInterativeParams extends MSALParams, MSALWebviewParams {
+export interface MSALInteractiveParams extends MSALParams, MSALWebviewParams {
   scopes: string[];
   promptType?: MSALPromptType;
   loginHint?: string;
@@ -60,11 +60,11 @@ export default class MSALClient {
 
   /**
    * Acquire a token interactively
-   * @param {MSALInterativeParams} params
+   * @param {MSALInteractiveParams} params
    * @return {Promise<MSALResult>} Result containing an access token and account identifier
    * used for acquiring subsequent tokens silently
    */
-  public acquireToken = (params: MSALInterativeParams): Promise<MSALResult> => {
+  public acquireToken = (params: MSALInteractiveParams): Promise<MSALResult> => {
     const {
       promptType = MSALPromptType.DEFAULT,
       loginHint = '',
