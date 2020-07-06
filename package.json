@@ -19,7 +19,7 @@
     "lint": "eslint --ext .js,.ts,.tsx .",
     "prepare": "bob build",
     "example": "yarn --cwd example",
-    "pods": "cd example/ios && node -e \"process.exit(require('os').platform() === 'darwin')\" || pod install --repo-update",
+    "pods": "cd example && npx pod-install",
     "bootstrap": "yarn example && yarn && yarn pods"
   },
   "keywords": [
