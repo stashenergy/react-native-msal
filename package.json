@@ -2,21 +2,26 @@
   "name": "react-native-msal",
   "version": "1.0.3",
   "description": "React Native wrapper for iOS and Android",
-  "main": "lib/commonjs/index.js",
-  "module": "lib/module/index.js",
+  "main": "lib/commonjs/index",
+  "module": "lib/module/index",
   "types": "lib/typescript/src/index.d.ts",
-  "react-native": "src/index.tsx",
+  "react-native": "src/index",
+  "source": "src/index",
   "files": [
     "src",
     "lib",
     "android",
     "ios",
-    "reactnativemsal.podspec"
+    "reactnativemsal.podspec",
+    "!lib/typescript/example",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__"
   ],
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
-    "lint": "eslint --ext .js,.ts,.tsx .",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "example": "yarn --cwd example",
     "pods": "cd example && npx pod-install",
@@ -47,6 +52,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.2.2",
     "jest": "^26.1.0",
+    "metro-react-native-babel-preset": "^0.60.0",
     "prettier": "^2.0.5",
     "react": "~16.11.0",
     "react-native": "~0.62.2",
@@ -60,6 +66,7 @@
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
+      "<rootDir>/example/node_modules",
       "<rootDir>/lib/"
     ]
   },
@@ -68,6 +75,11 @@
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "pre-commit": "yarn lint && yarn typescript"
     }
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
   },
   "eslintConfig": {
     "extends": [
@@ -86,6 +98,17 @@
         }
       ]
     }
+  },
+  "eslintIgnore": [
+    "node_modules/",
+    "lib/"
+  ],
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "useTabs": false,
+    "printWidth": 120
   },
   "@react-native-community/bob": {
     "source": "src",
