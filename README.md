@@ -19,14 +19,13 @@ Requires React Native >=0.61
 1. Register your application in the Azure Portal
 2. Set up redirect URLs for your application in the portal. You will need one for both iOS and Android. They will have the following patterns:
    - iOS: `msauth.<BUNDLE_ID>://auth`.
-     - ex: `msauth.energy.stash.msal.example://auth`
+     - ex: `msauth.com.example://auth`
    - Android: `msauth://<PACKAGE>/<BASE64_URL_ENCODED_PACKAGE_SIGNATURE>`
-     - ex: `msauth://energy.stash.msal.example/ab%4E1lPIzBP2j9uELdUz%2BcarjgxQ%3D`
-     - Get your package signature from your `*.keystore`, or from the Google Play console if you have automatic app signing turned on. For local debugging you can enter this command to read your `debug.keystore`:
-       `keytool -list -v -keystore path/to/debug.keystore -alias androiddebugkey -storepass android -keypass android`
-     - Convert the SHA1 signature to base64:
-       `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`
-     - URL-encode the base64 string
+     - ex: `msauth://com.example/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D`
+     - Get your package signature from your `.keystore` file, or from the Google Play Console if you have automatic app signing turned on.
+       - See the [MSAL FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-android/wiki/MSAL-FAQ#redirect-uri-issues) for instructions on how to get the package signature from your `.keystore` file.
+       - If you have automatic app signing turned on, you will find a SHA1 hash in your Google Play Console, under Release Management > App Signing > App Signing Certificate. To convert that to a base64 encoded string use the following command: `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`.
+   - Paste the base64 signature hash into the "Signature hash" field in the portal, and a redirect uri will be generated for you.
 
 ## Android Setup
 
