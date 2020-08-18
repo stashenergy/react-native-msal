@@ -53,7 +53,7 @@ export default class B2CClient {
       return await this.pca.acquireToken({ ...params });
     } catch (error) {
       if (error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) && this.policies.passwordReset) {
-        return this.resetPassword(params);
+        return await this.resetPassword(params);
       } else {
         throw error;
       }
@@ -80,11 +80,9 @@ export default class B2CClient {
 
   /** Removes all accounts from the device for this app. User will have to sign in again to get a token */
   public async signOut(params?: B2CSignOutParams) {
-    let accounts = await this.pca.getAccounts();
-    while (accounts.length > 0) {
-      await this.pca.signOut({ ...params, account: accounts[0] });
-      accounts = await this.pca.getAccounts();
-    }
+    const accounts = await this.pca.getAccounts();
+    const signOutPromises = accounts.map((account) => this.pca.signOut({ ...params, account }));
+    await Promise.all(signOutPromises);
     return true;
   }
 
