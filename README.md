@@ -1,6 +1,7 @@
 # react-native-msal
 
 [![npm latest version](https://img.shields.io/npm/v/react-native-msal/latest.svg)](https://www.npmjs.com/package/react-native-msal)
+[![npm beta version](https://img.shields.io/npm/v/react-native-msal/beta.svg)](https://www.npmjs.com/package/react-native-msal)
 ![ci status](https://github.com/stashenergy/react-native-msal/workflows/CI/badge.svg)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
