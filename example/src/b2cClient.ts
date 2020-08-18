@@ -6,6 +6,7 @@ import PublicClientApplication, {
   MSALSignoutParams,
   MSALWebviewParams,
 } from 'react-native-msal';
+import { Platform } from 'react-native';
 
 export interface B2CPolicies {
   signInSignUp: string;
@@ -98,11 +99,13 @@ export default class B2CClient {
       ios_prefersEphemeralWebBrowserSession: true,
     };
     if (this.policies.passwordReset) {
-      // Because there is no prompt before starting an ephemeral session, it will be quick to
+      // Because there is no prompt before starting an iOS ephemeral session, it will be quick to
       // open and begin before the other one has ended, causing an error saying that only one
       // interactive session is allowed at a time. So we have to slow it down a little
-      await delay(1000);
-      // Use the password reset policy and the interactive `acquireToken` call
+      if (Platform.OS === 'ios') {
+        await delay(1000);
+      }
+      // Use the password reset policy in the interactive `acquireToken` call
       const authority = this.getAuthority(this.policies.passwordReset);
       await this.pca.acquireToken({ ...rest, webviewParameters, authority });
       // Sign in again after resetting the password
