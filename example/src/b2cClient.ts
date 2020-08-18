@@ -4,6 +4,7 @@ import PublicClientApplication, {
   MSALSilentParams,
   MSALAccount,
   MSALSignoutParams,
+  MSALWebviewParams,
 } from 'react-native-msal';
 
 export interface B2CPolicies {
@@ -14,6 +15,8 @@ export interface B2CPolicies {
 export type B2CSignInParams = Omit<MSALInteractiveParams, 'authority'>;
 export type B2CAcquireTokenSilentParams = Pick<MSALSilentParams, 'forceRefresh' | 'scopes'>;
 export type B2CSignOutParams = Pick<MSALSignoutParams, 'signoutFromBrowser' | 'webviewParameters'>;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default class B2CClient {
   private static readonly B2C_PASSWORD_CHANGE = 'AADB2C90118';
@@ -50,7 +53,7 @@ export default class B2CClient {
     try {
       // If we don't provide an authority, the PCA will use the one we passed to it when we created it
       // (the sign in sign up policy)
-      return await this.pca.acquireToken({ ...params });
+      return await this.pca.acquireToken(params);
     } catch (error) {
       if (error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) && this.policies.passwordReset) {
         return await this.resetPassword(params);
@@ -87,12 +90,23 @@ export default class B2CClient {
   }
 
   private async resetPassword(params: B2CSignInParams) {
+    const { webviewParameters: wvp, ...rest } = params;
+    const webviewParameters: MSALWebviewParams = {
+      ...wvp,
+      // We use an ephemeral session because if we're resetting a password it means the user
+      // is not using an identity provider, so we don't need a logged-in browser session
+      ios_prefersEphemeralWebBrowserSession: true,
+    };
     if (this.policies.passwordReset) {
+      // Because there is no prompt before starting an ephemeral session, it will be quick to
+      // open and begin before the other one has ended, causing an error saying that only one
+      // interactive session is allowed at a time. So we have to slow it down a little
+      await delay(1000);
       // Use the password reset policy and the interactive `acquireToken` call
       const authority = this.getAuthority(this.policies.passwordReset);
-      await this.pca.acquireToken({ ...params, authority });
+      await this.pca.acquireToken({ ...rest, webviewParameters, authority });
       // Sign in again after resetting the password
-      return await this.signIn({ ...params });
+      return await this.signIn(params);
     } else {
       throw Error('B2CClient missing password reset policy');
     }
