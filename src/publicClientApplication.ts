@@ -1,6 +1,5 @@
-import { Platform } from 'react-native';
-import RNMSAL from './nativeModule';
-import {
+import { PublicClientApplication as MSALPublicClientApplication } from '@azure/msal-browser';
+import type {
   MSALConfiguration,
   MSALInteractiveParams,
   MSALSilentParams,
@@ -10,8 +9,10 @@ import {
 } from './types';
 
 export default class PublicClientApplication {
+  private _pca: MSALPublicClientApplication;
+
   constructor(private readonly config: MSALConfiguration) {
-    RNMSAL.createPublicClientApplication(this.config);
+    this._pca = new MSALPublicClientApplication(this.config);
   }
 
   /**
@@ -20,8 +21,30 @@ export default class PublicClientApplication {
    * @return Result containing an access token and account identifier
    * used for acquiring subsequent tokens silently
    */
-  public acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
-    return RNMSAL.acquireToken(params);
+  public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
+    const {
+      accessToken,
+      account,
+      expiresOn,
+      idToken,
+      idTokenClaims,
+      scopes,
+      tenantId,
+    } = await this._pca.acquireTokenPopup(params);
+    return {
+      accessToken,
+      account: {
+        identifier: account.homeAccountId,
+        environment: account.environment,
+        tenantId: account.tenantId,
+        username: account.username,
+        claims: idTokenClaims,
+      },
+      expiresOn: expiresOn.getTime(),
+      idToken,
+      scopes,
+      tenantId,
+    };
   }
 
   /**
@@ -31,8 +54,37 @@ export default class PublicClientApplication {
    * @return Result containing an access token and account identifier
    * used for acquiring subsequent tokens silently
    */
-  public acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
-    return RNMSAL.acquireTokenSilent(params);
+  public async acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
+    const {
+      accessToken,
+      account,
+      expiresOn,
+      idToken,
+      idTokenClaims,
+      scopes,
+      tenantId,
+    } = await this._pca.acquireTokenSilent({
+      ...params,
+      account: {
+        ...params.account,
+        homeAccountId: params.account.identifier,
+        environment: params.account.environment ?? '',
+      },
+    });
+    return {
+      accessToken,
+      account: {
+        identifier: account.homeAccountId,
+        environment: account.environment,
+        tenantId: account.tenantId,
+        username: account.username,
+        claims: idTokenClaims,
+      },
+      expiresOn: expiresOn.getTime(),
+      idToken,
+      scopes,
+      tenantId,
+    };
   }
 
   /**
@@ -40,14 +92,26 @@ export default class PublicClientApplication {
    * @return Promise containing array of MSALAccount objects for which this application has refresh tokens.
    */
   public getAccounts(): Promise<MSALAccount[]> {
-    return RNMSAL.getAccounts();
+    const accounts = this._pca.getAllAccounts();
+    return Promise.resolve(
+      accounts.map((a) => {
+        const { homeAccountId: identifier, environment, tenantId, username } = a;
+        return { identifier, environment, tenantId, username };
+      })
+    );
   }
 
   /** Retrieve the account matching the identifier
    * @return Promise containing MSALAccount object
    */
   public getAccount(accountIdentifier: string): Promise<MSALAccount> {
-    return RNMSAL.getAccount(accountIdentifier);
+    const account = this._pca.getAccountByHomeId(accountIdentifier);
+    if (account == null) {
+      return Promise.reject('Account not found');
+    } else {
+      const { homeAccountId: identifier, environment, tenantId, username } = account;
+      return Promise.resolve({ identifier, environment, tenantId, username });
+    }
   }
 
   /**
@@ -58,19 +122,24 @@ export default class PublicClientApplication {
    * otherwise rejects
    */
   public removeAccount(account: MSALAccount): Promise<boolean> {
-    return RNMSAL.removeAccount(account);
+    this._pca.logout({
+      account: {
+        ...account,
+        homeAccountId: account.identifier,
+        environment: account.environment ?? '',
+      },
+    });
+    return Promise.resolve(true);
   }
 
   /**
-   * NOTE: iOS only. On Android this is the same as `removeAccount`
    * Removes all tokens from the cache for this application for the provided
-   * account. Additionally, this will remove the account from the system browser.
+   * account.
    * @param {MSALSignoutParams} params
    * @return A promise which resolves if sign out is successful,
    * otherwise rejects
-   * @platform ios
    */
   public signOut(params: MSALSignoutParams): Promise<boolean> {
-    return Platform.OS === 'ios' ? RNMSAL.signout(params) : this.removeAccount(params.account);
+    return this.removeAccount(params.account);
   }
 }

@@ -32,22 +32,19 @@ export interface MSALSignoutParams {
 
 export interface MSALResult {
   accessToken: string;
+  account: MSALAccount;
   expiresOn: number;
   idToken?: string;
   scopes: string[];
-  authority: string;
   tenantId?: string;
-  account: MSALAccount;
 }
 
 export interface MSALAccount {
   identifier: string;
-  username?: string;
-  claims: Claims;
-}
-
-export interface Claims {
-  [key: string]: string | number;
+  environment?: string;
+  tenantId: string;
+  username: string;
+  claims?: object;
 }
 
 export enum MSALPromptType {

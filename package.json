@@ -4,16 +4,17 @@
   "description": "React Native wrapper for iOS and Android",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
-  "types": "lib/typescript/src/index.d.ts",
+  "types": "lib/typescript/index.d.ts",
   "react-native": "src/index",
   "source": "src/index",
   "files": [
-    "src",
-    "lib",
-    "android",
-    "ios",
+    "src/",
+    "lib/",
+    "android/src/main/AndroidManifest.xml",
+    "android/src/main/java/",
+    "ios/",
+    "!ios/build",
     "reactnativemsal.podspec",
-    "!lib/typescript/example",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__"
@@ -52,7 +53,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.2.2",
     "jest": "^26.2.1",
-    "metro-react-native-babel-preset": "^0.61.0",
+    "metro-react-native-babel-preset": "^0.63.0",
     "prettier": "^2.0.5",
     "react": "16.13.1",
     "react-native": "0.63.2",
@@ -118,5 +119,8 @@
       "module",
       "typescript"
     ]
+  },
+  "dependencies": {
+    "@azure/msal-browser": "^2.1.0"
   }
 }

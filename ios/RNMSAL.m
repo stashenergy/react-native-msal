@@ -159,16 +159,16 @@ RCT_REMAP_METHOD(getAccounts,
     @try {
         NSError *msalError = nil;
         NSArray *_accounts = [application allAccounts:&msalError];
-        
+
         if (msalError) {
             @throw msalError;
         }
-        
+
         NSMutableArray * accounts = [NSMutableArray arrayWithCapacity:1];
         for (MSALAccount *account in _accounts) {
             [accounts addObject:[self MSALAccountToDictionary:account]];
         }
-        
+
         resolve(accounts);
     } @catch (NSError* error) {
         reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
@@ -183,11 +183,11 @@ RCT_REMAP_METHOD(getAccount,
     @try {
         NSError *msalError = nil;
         MSALAccount *account = [application accountForIdentifier:accountIdentifier error:&msalError];
-        
+
         if (msalError) {
             @throw msalError;
         }
-        
+
         resolve([self MSALAccountToDictionary:account]);
     } @catch(NSError *error) {
         reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
@@ -252,10 +252,10 @@ RCT_REMAP_METHOD(signout,
         if (@available(iOS 13.0, *)) {
             webParameters.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
         }
-        
+
         MSALSignoutParameters *signoutParameters = [[MSALSignoutParameters alloc] initWithWebviewParameters:webParameters];
         signoutParameters.signoutFromBrowser = signoutFromBrowser;
-        
+
         [application signoutWithAccount:account signoutParameters:signoutParameters completionBlock:^(BOOL success, NSError * _Nullable error) {
             if (!error) {
                 resolve(success ? @YES : @NO);
@@ -288,7 +288,9 @@ RCT_REMAP_METHOD(signout,
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1];
     [dict setObject:account.identifier forKey:@"identifier"];
     [dict setObject:(account.username ?: [NSNull null]) forKey:@"username"];
+    [dict setObject:account.environment forKey:@"environment"];
     [dict setObject:account.accountClaims forKey:@"claims"];
+    [dict setObject:account.homeAccountId.tenantId forKey:@"tenantId"];
     return [dict mutableCopy];
 }
 

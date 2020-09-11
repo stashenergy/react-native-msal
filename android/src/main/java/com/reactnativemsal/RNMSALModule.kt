@@ -34,13 +34,8 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
       acquireTokenParameters.withScopes(scopes)
 
       // Optional parameters
-      var authority: String = publicClientApplication.configuration.defaultAuthority.authorityURL.toString()
-
       if (params.hasKey("authority")) {
-        params.getString("authority")?.let {
-          authority = it
-          acquireTokenParameters.fromAuthority(it)
-        }
+        params.getString("authority")?.let { acquireTokenParameters.fromAuthority(it) }
       }
 
       if (params.hasKey("promptType")) {
@@ -68,21 +63,21 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
         }
       }
 
-      acquireTokenParameters.withCallback(getAuthInteractiveCallback(promise, authority))
+      acquireTokenParameters.withCallback(getAuthInteractiveCallback(promise))
       publicClientApplication.acquireToken(acquireTokenParameters.build())
     } catch (e: Exception) {
       promise.reject(e)
     }
   }
 
-  private fun getAuthInteractiveCallback(promise: Promise, authority: String): AuthenticationCallback {
+  private fun getAuthInteractiveCallback(promise: Promise): AuthenticationCallback {
     return object : AuthenticationCallback {
       override fun onCancel() {
         promise.reject("userCancel", "userCancel")
       }
 
       override fun onSuccess(authenticationResult: IAuthenticationResult) {
-        promise.resolve(msalResultToDictionary(authenticationResult, authority))
+        promise.resolve(msalResultToDictionary(authenticationResult))
       }
 
       override fun onError(exception: MsalException) {
@@ -107,7 +102,6 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
 
       // Optional parameters
       var authority: String = publicClientApplication.configuration.defaultAuthority.authorityURL.toString()
-
       if (params.hasKey("authority")) {
         params.getString("authority")?.let { authority = it }
       }
@@ -117,17 +111,17 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
         params.getBoolean("forceRefresh").let { acquireTokenSilentParameters.forceRefresh(it) }
       }
 
-      acquireTokenSilentParameters.withCallback(getAuthSilentCallback(promise, authority))
+      acquireTokenSilentParameters.withCallback(getAuthSilentCallback(promise))
       publicClientApplication.acquireTokenSilentAsync(acquireTokenSilentParameters.build())
     } catch (e: Exception) {
       promise.reject(e)
     }
   }
 
-  private fun getAuthSilentCallback(promise: Promise, authority: String): SilentAuthenticationCallback {
+  private fun getAuthSilentCallback(promise: Promise): SilentAuthenticationCallback {
     return object : SilentAuthenticationCallback {
       override fun onSuccess(authenticationResult: IAuthenticationResult) {
-        promise.resolve(msalResultToDictionary(authenticationResult, authority))
+        promise.resolve(msalResultToDictionary(authenticationResult))
       }
 
       override fun onError(exception: MsalException) {
@@ -182,13 +176,12 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     }
   }
 
-  private fun msalResultToDictionary(result: IAuthenticationResult, authority: String): WritableMap {
+  private fun msalResultToDictionary(result: IAuthenticationResult): WritableMap {
     val map = Arguments.createMap()
     map.putString("accessToken", result.accessToken)
     map.putString("expiresOn", String.format("%s", result.expiresOn.time / 1000))
     map.putString("idToken", result.account.idToken)
     map.putArray("scopes", Arguments.fromArray(result.scope))
-    map.putString("authority", authority)
     map.putString("tenantId", result.tenantId)
     map.putMap("account", accountToMap(result.account))
     return map
@@ -198,6 +191,7 @@ class RNMSALModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     val map = Arguments.createMap()
     map.putString("identifier", account.id)
     map.putString("username", account.username)
+    map.putString("tenantId", account.tenantId)
     account.claims?.let {
       map.putMap("claims", toWritableMap(it as Map<String, Any?>))
     }
