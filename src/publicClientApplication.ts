@@ -7,6 +7,22 @@ import type {
   MSALSignoutParams,
   MSALResult,
 } from './types';
+import { MSALPromptType } from './types';
+
+type PromptTypeString = 'consent' | 'login' | 'select_account' | 'none';
+
+function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
+  switch (promptType) {
+    case MSALPromptType.SELECT_ACCOUNT:
+      return 'select_account';
+    case MSALPromptType.LOGIN:
+      return 'login';
+    case MSALPromptType.CONSENT:
+      return 'consent';
+    case MSALPromptType.WHEN_REQUIRED:
+      return 'none';
+  }
+}
 
 export default class PublicClientApplication {
   private _pca: MSALPublicClientApplication;
@@ -22,6 +38,7 @@ export default class PublicClientApplication {
    * used for acquiring subsequent tokens silently
    */
   public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
+    const { promptType, ...paramsWithoutPromptType } = params;
     const {
       accessToken,
       account,
@@ -30,7 +47,9 @@ export default class PublicClientApplication {
       idTokenClaims,
       scopes,
       tenantId,
-    } = await this._pca.acquireTokenPopup(params);
+    } = await this._pca.acquireTokenPopup(
+      promptType ? { ...paramsWithoutPromptType, prompt: promptTypeToString(promptType) } : paramsWithoutPromptType
+    );
     return {
       accessToken,
       account: {
