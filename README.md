@@ -141,3 +141,7 @@ To run the example, first:
 ### iOS
 
 1. `yarn example ios`
+
+## Migrating from v2 to v3
+
+See breaking changes in [CHANGELOG.md](CHANGELOG.md#300).
