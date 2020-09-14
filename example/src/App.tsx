@@ -6,7 +6,7 @@ import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
 import B2CClient from './b2cClient';
 import { b2cConfig } from './msalConfig';
-import { MSALResult } from 'react-native-msal';
+import type { MSALResult } from 'react-native-msal';
 
 const { clientId, authorityBase, policies, scopes } = b2cConfig;
 
