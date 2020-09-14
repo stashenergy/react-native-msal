@@ -71,6 +71,10 @@ The `signout` method has been renamed `signOut` and `authority` removed from the
 
 `MSALResult.expiresOn` now returns a value in seconds instead of milliseconds.
 
+#### `MSALResult` interface
+
+The result returned from an `acquireToken` or `acquireTokenSilent` call no longer has an `authority` property.
+
 #### Azure AD B2C usage
 
 See [example/src/b2cClient.ts](https://github.com/stashenergy/react-native-msal/blob/beta/example/src/b2cClient.ts), but at the very least, `knownAuthorities` should be added to the initial client constructor.
