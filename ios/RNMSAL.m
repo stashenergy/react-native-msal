@@ -78,11 +78,15 @@ RCT_REMAP_METHOD(acquireToken,
         NSDictionary<NSString *,NSString *> *extraQueryParameters = [RCTConvert NSDictionary:params[@"extraQueryParameters"]];
         NSArray<NSString *> *extraScopesToConsent = [RCTConvert NSStringArray:params[@"extraScopesToConsent"]];
         NSDictionary * webviewParameters = [RCTConvert NSDictionary:params[@"webviewParameters"]];
+        NSUInteger webviewType = [RCTConvert NSUInteger:webviewParameters[@"ios_webviewType"]];
+        NSInteger presentationStyle = [RCTConvert NSInteger:webviewParameters[@"ios_presentationStyle"]];
         BOOL prefersEphemeralWebBrowserSession = [RCTConvert BOOL:webviewParameters[@"ios_prefersEphemeralWebBrowserSession"]];
 
         // Configure interactive token parameters
         UIViewController *viewController = [UIViewController currentViewController];
         MSALWebviewParameters *webParameters = [[MSALWebviewParameters alloc] initWithAuthPresentationViewController:viewController];
+        webParameters.webviewType = webviewType;
+        webParameters.presentationStyle = presentationStyle;
         if (@available(iOS 13.0, *)) {
             webParameters.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
         }

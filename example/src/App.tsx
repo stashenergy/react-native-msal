@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
-import type { MSALResult } from 'react-native-msal';
+import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
 import B2CClient from './b2cClient';
 import { b2cConfig, b2cScopes as scopes } from './msalConfig';
 
@@ -13,7 +13,9 @@ const b2cClient = new B2CClient(b2cConfig);
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
   const [iosEphemeralSession, setIosEphemeralSession] = React.useState(false);
-  const webviewParameters = { ios_prefersEphemeralWebBrowserSession: iosEphemeralSession };
+  const webviewParameters: MSALWebviewParams = {
+    ios_prefersEphemeralWebBrowserSession: iosEphemeralSession,
+  };
 
   React.useEffect(() => {
     async function init() {
