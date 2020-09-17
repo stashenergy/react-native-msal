@@ -4,13 +4,11 @@
 
 import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
-import B2CClient from './b2cClient';
-import { b2cConfig } from './msalConfig';
 import type { MSALResult } from 'react-native-msal';
+import B2CClient from './b2cClient';
+import { b2cConfig, b2cScopes as scopes } from './msalConfig';
 
-const { clientId, authorityBase, policies, scopes } = b2cConfig;
-
-const b2cClient = new B2CClient(clientId, authorityBase, policies);
+const b2cClient = new B2CClient(b2cConfig);
 
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
