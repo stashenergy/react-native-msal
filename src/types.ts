@@ -1,3 +1,5 @@
+import type { Configuration } from '@azure/msal-browser';
+
 export interface MSALConfiguration {
   auth: {
     clientId: string;
@@ -5,6 +7,10 @@ export interface MSALConfiguration {
     knownAuthorities?: string[];
     redirectUri?: string;
   };
+  /**
+   * @platform web
+   * */
+  cache?: Configuration['cache'] & { cacheLocation?: 'localStorage' | 'sessionStorage' };
 }
 
 export interface MSALInteractiveParams {
