@@ -17,48 +17,56 @@ MSALPublicClientApplication *application;
 }
 
 RCT_REMAP_METHOD(createPublicClientApplication,
-                 config:(NSDictionary*)config)
+                 config:(NSDictionary*)config
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSError *msalError = nil;
+    @try {
+        NSError *msalError = nil;
 
-    // Required
-    NSDictionary* auth = [RCTConvert NSDictionary:config[@"auth"]];
-    NSString* clientId = [RCTConvert NSString:auth[@"clientId"]];
+        // Required
+        NSDictionary* auth = [RCTConvert NSDictionary:config[@"auth"]];
+        NSString* clientId = [RCTConvert NSString:auth[@"clientId"]];
 
-    // Optional
-    NSString* authority = [RCTConvert NSString:auth[@"authority"]];
-    NSArray<NSString*> * knownAuthorities = [RCTConvert NSStringArray:auth[@"knownAuthorities"]];
-    NSString* redirectUri = [RCTConvert NSString:auth[@"redirectUri"]];
+        // Optional
+        NSString* authority = [RCTConvert NSString:auth[@"authority"]];
+        NSArray<NSString*> * knownAuthorities = [RCTConvert NSStringArray:auth[@"knownAuthorities"]];
+        NSString* redirectUri = [RCTConvert NSString:auth[@"redirectUri"]];
 
-    MSALPublicClientApplicationConfig *applicationConfig = [[MSALPublicClientApplicationConfig alloc] initWithClientId:clientId];
-    if (authority) {
-        MSALAuthority *msalAuthority = [MSALAuthority authorityWithURL:[NSURL URLWithString:authority] error:&msalError];
-        if (msalError) {
-            @throw(msalError);
-        }
-        applicationConfig.authority = msalAuthority;
-    }
-
-    if (knownAuthorities) {
-        NSMutableArray<MSALAuthority*> * msalKnownAuthorities = [NSMutableArray arrayWithCapacity:1];
-        for (NSString *authorityString in knownAuthorities) {
-            MSALAuthority *a = [MSALAuthority authorityWithURL:[NSURL URLWithString:authorityString] error:&msalError];
+        MSALPublicClientApplicationConfig *applicationConfig = [[MSALPublicClientApplicationConfig alloc] initWithClientId:clientId];
+        if (authority) {
+            MSALAuthority *msalAuthority = [MSALAuthority authorityWithURL:[NSURL URLWithString:authority] error:&msalError];
             if (msalError) {
                 @throw(msalError);
             }
-            [msalKnownAuthorities addObject:a];
+            applicationConfig.authority = msalAuthority;
         }
-        applicationConfig.knownAuthorities = msalKnownAuthorities;
-    }
 
-    if (redirectUri) {
-        applicationConfig.redirectUri = redirectUri;
-    }
+        if (knownAuthorities) {
+            NSMutableArray<MSALAuthority*> * msalKnownAuthorities = [NSMutableArray arrayWithCapacity:1];
+            for (NSString *authorityString in knownAuthorities) {
+                MSALAuthority *a = [MSALAuthority authorityWithURL:[NSURL URLWithString:authorityString] error:&msalError];
+                if (msalError) {
+                    @throw(msalError);
+                }
+                [msalKnownAuthorities addObject:a];
+            }
+            applicationConfig.knownAuthorities = msalKnownAuthorities;
+        }
 
-    application = [[MSALPublicClientApplication alloc] initWithConfiguration:applicationConfig error:&msalError];
+        if (redirectUri) {
+            applicationConfig.redirectUri = redirectUri;
+        }
 
-    if (msalError) {
-        @throw(msalError);
+        application = [[MSALPublicClientApplication alloc] initWithConfiguration:applicationConfig error:&msalError];
+
+        if (msalError) {
+            @throw(msalError);
+        }
+        
+        resolve(nil);
+    } @catch (NSError *error) {
+        reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
     }
 }
 

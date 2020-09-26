@@ -8,7 +8,7 @@ import type {
 } from './types';
 
 export interface RNMSALNativeModule {
-  createPublicClientApplication(config: MSALConfiguration): void;
+  createPublicClientApplication(config: MSALConfiguration): Promise<void>;
   acquireToken(params: MSALInteractiveParams): Promise<MSALResult>;
   acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult>;
   getAccounts(): Promise<MSALAccount[]>;
