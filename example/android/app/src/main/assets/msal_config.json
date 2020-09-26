@@ -7,12 +7,12 @@
   "authorities": [
     {
       "type": "B2C",
-      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/B2C_1A_SignInUp_Native",
+      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/<SIGN_IN_SIGN_UP_POLICY>",
       "default": true
     },
     {
       "type": "B2C",
-      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/B2C_1A_PasswordReset_Native"
+      "authority_url": "https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com/<PASSWORD_RESET_POLICY>"
     }
   ]
 }

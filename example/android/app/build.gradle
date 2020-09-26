@@ -208,7 +208,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    compile project(':reactnativemsal')
+    implementation project(':reactnativemsal')
 }
 
 // Run this once to be able to run the application with BUCK
