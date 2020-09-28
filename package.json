@@ -10,10 +10,8 @@
   "files": [
     "src",
     "lib",
-    "android/src/main/AndroidManifest.xml",
-    "android/src/main/java",
+    "android",
     "ios",
-    "!ios/build",
     "reactnativemsal.podspec",
     "!lib/typescript/example",
     "!**/__tests__",
