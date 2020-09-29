@@ -27,8 +27,10 @@
     "example:install": "yarn --cwd example install",
     "pods": "cd example && npx pod-install",
     "website:install": "yarn --cwd website install",
-    "bootstrap": "yarn example:install && && yarn website:install && yarn && yarn pods",
-    "predeploy": "yarn --cwd website build",
+    "website:build": "yarn --cwd website build",
+    "bootstrap": "yarn example:install && yarn && yarn pods",
+    "postinstall": "yarn website:install",
+    "predeploy": "yarn website:build",
     "deploy": "gh-pages -d website/build"
   },
   "keywords": [
@@ -72,7 +74,8 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
-      "<rootDir>/lib/"
+      "<rootDir>/lib/",
+      "<rootDir>/website"
     ]
   },
   "husky": {
@@ -107,7 +110,7 @@
   "eslintIgnore": [
     "node_modules/",
     "lib/",
-    "website/"
+    "website/build"
   ],
   "prettier": {
     "singleQuote": true,
