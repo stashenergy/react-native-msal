@@ -22,7 +22,7 @@
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
-    "lint": "eslint \"{src,example}/**/*.{js,ts,tsx}\"",
+    "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "example:install": "yarn --cwd example install",
     "pods": "cd example && npx pod-install",
@@ -106,7 +106,8 @@
   },
   "eslintIgnore": [
     "node_modules/",
-    "lib/"
+    "lib/",
+    "website/"
   ],
   "prettier": {
     "singleQuote": true,
