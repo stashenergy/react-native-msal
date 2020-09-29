@@ -17,19 +17,19 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!website",
-    "!docs"
+    "!website"
   ],
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"{src,example}/**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
-    "example": "yarn --cwd example",
+    "example:install": "yarn --cwd example install",
     "pods": "cd example && npx pod-install",
-    "bootstrap": "yarn example && yarn && yarn pods",
+    "website:install": "yarn --cwd website install",
+    "bootstrap": "yarn example:install && && yarn website:install && yarn && yarn pods",
     "predeploy": "yarn --cwd website build",
-    "deploy": "gh-pages -d website/build -e docs"
+    "deploy": "gh-pages -d website/build"
   },
   "keywords": [
     "react-native",
