@@ -28,7 +28,8 @@
     "example": "yarn --cwd example",
     "pods": "cd example && npx pod-install",
     "bootstrap": "yarn example && yarn && yarn pods",
-    "docs:deploy": "yarn --cwd website deploy"
+    "predeploy": "yarn --cwd website build",
+    "deploy": "gh-pages -d website/build -e docs"
   },
   "keywords": [
     "react-native",
@@ -53,6 +54,7 @@
     "eslint": "^7.9.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "gh-pages": "^3.1.0",
     "husky": "^4.3.0",
     "jest": "^26.4.2",
     "metro-react-native-babel-preset": "^0.63.0",
