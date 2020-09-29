@@ -17,16 +17,18 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!website"
+    "!website",
+    "!docs"
   ],
   "scripts": {
     "test": "jest",
     "typescript": "tsc --noEmit",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint": "eslint \"{src,example}/**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "example": "yarn --cwd example",
     "pods": "cd example && npx pod-install",
-    "bootstrap": "yarn example && yarn && yarn pods"
+    "bootstrap": "yarn example && yarn && yarn pods",
+    "docs:deploy": "yarn --cwd website deploy"
   },
   "keywords": [
     "react-native",
