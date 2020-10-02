@@ -23,23 +23,34 @@ Before setting up your React Native app, you must register your application in t
 
 ### Android Setup
 
-1. Register a redirect URI for your application for Android in the Azure Portal. It will have the following pattern: `msauth://<PACKAGE>/<BASE64_URL_ENCODED_PACKAGE_SIGNATURE>`.
-   - Get your package signature from your `.keystore` file, or from the Google Play Console if you have automatic app signing turned on.
-     - See the [MSAL FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-android/wiki/MSAL-FAQ#redirect-uri-issues) for instructions on how to get the package signature from your `.keystore` file.
-     - If you have automatic app signing turned on, you will find a SHA1 hash in your Google Play Console, under Release Management > App Signing > App Signing Certificate. To convert that to a base64 encoded string use the following command: `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`.
-     - Paste the base64 signature hash into the "Signature hash" field in the portal, and a redirect uri will be generated for you.
-1. Create your MSAL configuration file as described [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-2-create-your-msal-configuration-file). **IMPORTANT**: You **MUST** create a file in your assets folder (`android/app/src/main/assets`) named `msal_config.json` containing your MSAL configuration. If you don't have an `assets` folder already, you will need to create one.
-1. Configure your `AndroidManifest.xml` file as described [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-3-configure-the-androidmanifestxml).
+1. Register a redirect URI for your application for Android in the Azure Portal. It will have the following pattern: `msauth://<PACKAGE_NAME>/<BASE64_URL_ENCODED_PACKAGE_SIGNATURE>`.
+   1. Navigate to your tenant in the Azure Portal.
+   1. Under "Platform configurations", click "Add a platform".
+   1. Click "Android".
+   1. Enter your app's Package Name and Signature Hash. There are instructions on how to get both. See the [MSAL FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-android/wiki/MSAL-FAQ#redirect-uri-issues) for more details on how to get the Signature Hash. If you have Automatic App Signing turned on, you will find a SHA1 hash in your Google Play Console, under Release Management > App Signing > App Signing Certificate. To convert that to a base64 encoded string use the following command:  
+      `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`
+   1. Click "Configure".
+   1. Copy the generated MSAL Configuration to a new asset file called `msal_config.json` located in your assets folder (`android/app/src/main/assets`). More details about the configuration file found [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-2-create-your-msal-configuration-file).  
+      **Note**: as of this writing the copiable config in the portal is messed up. Only use the JSON object portion of the config.
+   1. Also in your `msal_config.json`, add the property: `"account_mode": "MULTIPLE"`. This is required to use this library.
+1. Configure your `AndroidManifest.xml` file as described [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-3-configure-the-androidmanifestxml). This involves requesting a couple of permissions and configuring an intent filter using your Redirect URI.  
+   **NOTE**: The `android:path` attribute value sould start with a forward slash (`/`) and the Signature Hash should **NOT** be URL encoded.
 
 ### iOS Setup
 
 Follow the steps as described [here](https://github.com/AzureAD/microsoft-authentication-library-for-objc#configuring-msal). Steps include:
 
 1. Register a redirect URI for your application for iOS in the Azure Portal. It should be in the following format: `msauth.[BUNDLE_ID]://auth`
+   1. Navigate to your tenant in the Azure Portal.
+   1. Under "Platform configurations", click "Add a platform".
+   1. Click "iOS / macOS".
+   1. Enter your app's Bundle ID.
+   1. Click "Configure".
+   1. Click "Done"
 1. Add a keychain group to your project Capabilities called `com.microsoft.adalcache`
 1. Add your application's redirect URI scheme to your `Info.plist` file, which will be in the format of msauth.[BUNDLE_ID]
 1. Add LSApplicationQueriesSchemes to allow making call to Microsoft Authenticator if installed.
-1. Add the provided code in your AppDelegate.m to handle MSAL callbacks
+1. Add the provided code in your AppDelegate.m to handle MSAL callbacks. Make sure you `#import <MSAL/MSAL.h>`
 
 ## Usage
 
