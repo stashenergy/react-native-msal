@@ -9,11 +9,16 @@
   <img src="_assets/ReactNativeMSALLogo.png" width="300">
 </p>
 
+## Live Demo (Web)
+
+[https://stashenergy.github.io/react-native-msal/](https://stashenergy.github.io/react-native-msal/)
+
 ## Getting started
 
-Requires React Native >=0.61
+Stable version: `$ yarn add react-native-msal`  
+Beta version : `$ yarn add react-native-msal@beta`
 
-`$ yarn add react-native-msal`
+Requires React Native >=0.61
 
 ## Setup
 
@@ -28,7 +33,7 @@ Before setting up your React Native app, you must register your application in t
    1. Under "Platform configurations", click "Add a platform".
    1. Click "Android".
    1. Enter your app's Package Name and Signature Hash. There are instructions on how to get both. See the [MSAL FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-android/wiki/MSAL-FAQ#redirect-uri-issues) for more details on how to get the Signature Hash. If you have Automatic App Signing turned on, you will find a SHA1 hash in your Google Play Console, under Release Management > App Signing > App Signing Certificate. To convert that to a base64 encoded string use the following command:  
-      `echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`
+      `$ echo -n "<YOUR_SHA1_SIGNATURE>" | openssl dgst -binary -sha1 | openssl base64`
    1. Click "Configure".
    1. Copy the generated MSAL Configuration to a new asset file called `msal_config.json` located in your assets folder (`android/app/src/main/assets`). More details about the configuration file found [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-2-create-your-msal-configuration-file).  
       **Note**: as of this writing the copiable config in the portal is messed up. Only use the JSON object portion of the config.
@@ -136,22 +141,20 @@ If you would like to see this class included in the library itself, please creat
 
 As mentioned above, the example app demonstrates a B2C implementation
 
-To run the example, first:
+To run the example locally, first clone the repo and run `$ yarn bootstrap` to install the depedencies. Then run the following for the desired platform:
 
-1. `yarn bootstrap`
-2. Register the redirect URLs in your tenant:
-   - Android: `msauth://com.example/P6akJ4YYsuUDahjqGra9mAflzdA%3D`
+iOS: `$ yarn example ios`  
+Android: `$ yarn example android`  
+Web: `$ yarn example web` (the example app is also running live [here](https://stashenergy.github.io/react-native-msal/))
+
+If you want to run the example using your own Azure application information:
+
+1. Register the redirect URLs in your tenant:
+   - Android: `msauth://com.example/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D`
    - iOS: `msauth.com.example://auth`
-3. Update the `b2cConfig` object in `msalConfig.ts` with your details
-
-### Android
-
-1. Edit the `msal_config.json` asset file to include your client id and authorities
-2. `yarn example android`
-
-### iOS
-
-1. `yarn example ios`
+   - Web (SPA): `http://localhost:19006`
+1. Update the `b2cConfig` and `b2cScopes` variables in `msalConfig.ts` with your details.
+1. Update the `msal_config.json` Android asset file with your details.
 
 ## Migrating from v2 to v3
 
