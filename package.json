@@ -36,7 +36,7 @@
     "android"
   ],
   "repository": "https://github.com/stashenergy/react-native-msal",
-  "author": "Stash Energy <info@stash.energy> (https://stash.energy)",
+  "author": "Stash Energy <dev@stash.energy> (https://stash.energy)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/stashenergy/react-native-msal/issues"

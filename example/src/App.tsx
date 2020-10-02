@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
+import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
 import B2CClient from './b2cClient';
 import { b2cConfig, b2cScopes as scopes } from './msalConfig';
@@ -59,27 +59,27 @@ export default function App() {
       <View style={styles.buttonContainer}>
         {authResult ? (
           <>
-            <Pressable style={styles.button} onPress={handleAcquireTokenPress}>
+            <TouchableOpacity style={styles.button} onPress={handleAcquireTokenPress}>
               <Text>Acquire Token (Silent)</Text>
-            </Pressable>
-            <Pressable style={styles.button} onPress={handleSignoutPress}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleSignoutPress}>
               <Text>Sign Out</Text>
-            </Pressable>
+            </TouchableOpacity>
           </>
         ) : (
-          <Pressable style={styles.button} onPress={handleSignInPress}>
+          <TouchableOpacity style={styles.button} onPress={handleSignInPress}>
             <Text>Sign In</Text>
-          </Pressable>
+          </TouchableOpacity>
         )}
 
         {Platform.OS === 'ios' ? (
-          <Pressable
+          <TouchableOpacity
             style={[styles.button, styles.switchButton]}
             onPress={() => setIosEphemeralSession(!iosEphemeralSession)}
           >
             <Text>Prefer ephemeral browser session (iOS only)</Text>
             <Switch value={iosEphemeralSession} onValueChange={setIosEphemeralSession} />
-          </Pressable>
+          </TouchableOpacity>
         ) : null}
       </View>
       <ScrollView style={styles.scrollView}>
@@ -120,5 +120,6 @@ const styles = StyleSheet.create({
     marginHorizontal: '1%',
     marginBottom: '1%',
     borderWidth: 1,
+    padding: 1,
   },
 });
