@@ -39,7 +39,7 @@ Before setting up your React Native app, you must register your application in t
       **Note**: as of this writing the copiable config in the portal is messed up. Only use the JSON object portion of the config.
    1. Also in your `msal_config.json`, add the property: `"account_mode": "MULTIPLE"`. This is required to use this library.
 1. Configure your `AndroidManifest.xml` file as described [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-3-configure-the-androidmanifestxml). This involves requesting a couple of permissions and configuring an intent filter using your Redirect URI.  
-   **NOTE**: The `android:path` attribute value sould start with a forward slash (`/`) and the Signature Hash should **NOT** be URL encoded.
+   **Note**: The `android:path` attribute value sould start with a forward slash (`/`) and the Signature Hash should **NOT** be URL encoded.
 
 ### iOS Setup
 
