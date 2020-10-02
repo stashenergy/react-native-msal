@@ -16,8 +16,7 @@
     "!lib/typescript/example",
     "!**/__tests__",
     "!**/__fixtures__",
-    "!**/__mocks__",
-    "!website"
+    "!**/__mocks__"
   ],
   "scripts": {
     "test": "jest",
@@ -25,13 +24,11 @@
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "prepare": "bob build",
     "example:install": "yarn --cwd example install",
+    "example:build:web": "yarn --cwd example build:web",
     "pods": "cd example && npx pod-install",
-    "website:install": "yarn --cwd website install",
-    "website:build": "yarn --cwd website build",
     "bootstrap": "yarn example:install && yarn && yarn pods",
-    "postinstall": "yarn website:install",
-    "predeploy": "yarn website:build",
-    "deploy": "gh-pages -d website/build"
+    "predeploy": "yarn example:build:web",
+    "deploy": "gh-pages -d example/web-build"
   },
   "keywords": [
     "react-native",
@@ -74,8 +71,7 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
-      "<rootDir>/lib/",
-      "<rootDir>/website"
+      "<rootDir>/lib/"
     ]
   },
   "husky": {
@@ -110,7 +106,7 @@
   "eslintIgnore": [
     "node_modules/",
     "lib/",
-    "website/build"
+    "example/web-build"
   ],
   "prettier": {
     "singleQuote": true,

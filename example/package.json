@@ -1,12 +1,14 @@
 {
   "name": "react-native-msal-example",
   "version": "0.0.1",
+  "homepage": "https://stashenergy.github.io/react-native-msal",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
-    "web": "expo start:web"
+    "web": "expo start:web",
+    "build:web": "expo build:web"
   },
   "dependencies": {
     "react": "16.13.1",

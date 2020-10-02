@@ -2,15 +2,15 @@ import type { B2CConfiguration } from './b2cClient';
 
 export const b2cConfig: B2CConfiguration = {
   auth: {
-    clientId: '<CLIENT_ID>',
-    authorityBase: 'https://<TENANT_NAME>.b2clogin.com/tfp/<TENANT_NAME>.onmicrosoft.com',
+    clientId: 'fc8ecae3-0883-45f4-ac1c-013dfa11cb9c',
+    authorityBase: 'https://stashcafe.b2clogin.com/tfp/stashcafe.onmicrosoft.com',
     policies: {
-      signInSignUp: 'b2c_sisu',
-      passwordReset: 'b2c_reset',
+      signInSignUp: 'B2C_1_SignInUp',
+      passwordReset: 'B2C_1_PasswordReset',
     },
   },
   // web only:
   cache: { cacheLocation: 'localStorage' },
 };
 
-export const b2cScopes = ['https://<TENANT_NAME>.onmicrosoft.com/api/user_impersonation'];
+export const b2cScopes = ['https://stashcafe.onmicrosoft.com/api/user_impersonation'];
