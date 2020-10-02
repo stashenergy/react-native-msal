@@ -1,22 +1,19 @@
 {
   "files": {
-    "main.css": "/react-native-msal/static/css/main.8e4d197e.chunk.css",
-    "main.js": "/react-native-msal/static/js/main.18464e91.chunk.js",
-    "main.js.map": "/react-native-msal/static/js/main.18464e91.chunk.js.map",
-    "runtime-main.js": "/react-native-msal/static/js/runtime-main.3dc91425.js",
-    "runtime-main.js.map": "/react-native-msal/static/js/runtime-main.3dc91425.js.map",
-    "static/js/2.03513662.chunk.js": "/react-native-msal/static/js/2.03513662.chunk.js",
-    "static/js/2.03513662.chunk.js.map": "/react-native-msal/static/js/2.03513662.chunk.js.map",
-    "index.html": "/react-native-msal/index.html",
-    "precache-manifest.e6adda94ff23bbbb47827b59e08b945f.js": "/react-native-msal/precache-manifest.e6adda94ff23bbbb47827b59e08b945f.js",
-    "service-worker.js": "/react-native-msal/service-worker.js",
-    "static/css/main.8e4d197e.chunk.css.map": "/react-native-msal/static/css/main.8e4d197e.chunk.css.map",
-    "static/js/2.03513662.chunk.js.LICENSE.txt": "/react-native-msal/static/js/2.03513662.chunk.js.LICENSE.txt"
+    "app.js": "/static/js/app.96ef618e.chunk.js",
+    "app.js.map": "/static/js/app.96ef618e.chunk.js.map",
+    "runtime~app.js": "/static/js/runtime~app.2e9f1821.js",
+    "runtime~app.js.map": "/static/js/runtime~app.2e9f1821.js.map",
+    "static/js/2.682b7be5.chunk.js": "/static/js/2.682b7be5.chunk.js",
+    "static/js/2.682b7be5.chunk.js.map": "/static/js/2.682b7be5.chunk.js.map",
+    "index.html": "/index.html",
+    "manifest.json": "/manifest.json",
+    "serve.json": "/serve.json",
+    "static/js/2.682b7be5.chunk.js.LICENSE.txt": "/static/js/2.682b7be5.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.3dc91425.js",
-    "static/js/2.03513662.chunk.js",
-    "static/css/main.8e4d197e.chunk.css",
-    "static/js/main.18464e91.chunk.js"
+    "static/js/runtime~app.2e9f1821.js",
+    "static/js/2.682b7be5.chunk.js",
+    "static/js/app.96ef618e.chunk.js"
   ]
 }
