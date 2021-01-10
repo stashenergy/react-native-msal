@@ -53,13 +53,13 @@ export default class PublicClientApplication {
     return {
       accessToken,
       account: {
-        identifier: account.homeAccountId,
-        environment: account.environment,
-        tenantId: account.tenantId,
-        username: account.username,
+        identifier: account?.homeAccountId!,
+        environment: account?.environment,
+        tenantId: account?.tenantId!,
+        username: account?.username!,
         claims: idTokenClaims,
       },
-      expiresOn: expiresOn.getTime(),
+      expiresOn: expiresOn?.getTime()!,
       idToken,
       scopes,
       tenantId,
@@ -88,18 +88,19 @@ export default class PublicClientApplication {
         ...params.account,
         homeAccountId: params.account.identifier,
         environment: params.account.environment ?? '',
+        localAccountId: '',
       },
     });
     return {
       accessToken,
       account: {
-        identifier: account.homeAccountId,
-        environment: account.environment,
-        tenantId: account.tenantId,
-        username: account.username,
+        identifier: account?.homeAccountId!,
+        environment: account?.environment,
+        tenantId: account?.tenantId!,
+        username: account?.username!,
         claims: idTokenClaims,
       },
-      expiresOn: expiresOn.getTime(),
+      expiresOn: expiresOn?.getTime()!,
       idToken,
       scopes,
       tenantId,
@@ -146,6 +147,7 @@ export default class PublicClientApplication {
         ...account,
         homeAccountId: account.identifier,
         environment: account.environment ?? '',
+        localAccountId: '',
       },
     });
     return Promise.resolve(true);
