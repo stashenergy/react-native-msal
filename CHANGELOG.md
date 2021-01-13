@@ -78,3 +78,21 @@ The result returned from an `acquireToken` or `acquireTokenSilent` call no longe
 #### Azure AD B2C usage
 
 See [example/src/b2cClient.ts](https://github.com/stashenergy/react-native-msal/blob/beta/example/src/b2cClient.ts), but at the very least, `knownAuthorities` should be added to the initial client constructor.
+
+#### Testing
+
+You'll need to mock the PublicClientApplication class for testing purposes. One way to do this:
+
+```typescript
+// yourtestfile.test.ts
+import PublicClientApplication from 'react-native-msal';
+jest.mock('react-native-msal');
+
+const MockPublicClientApplication = PublicClientApplication as jest.Mock<PublicClientApplication>;
+
+it('Creates a mock instance without calling native functions', () => {
+  const mockPca = new MockPublicClientApplication({ auth: { clientId: '1234' } });
+  expect(MockPublicClientApplication).toHaveBeenCalledTimes(1);
+  expect(mockPca).not.toBeNull();
+});
+```
