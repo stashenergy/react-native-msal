@@ -30,6 +30,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default class B2CClient {
   private static readonly B2C_PASSWORD_CHANGE = 'AADB2C90118';
+  private static readonly B2C_EXPIRED_GRANT = 'AADB2C90080';
   private pca: PublicClientApplication;
 
   /** Construct a B2CClient object
@@ -82,7 +83,16 @@ export default class B2CClient {
     if (account) {
       // We provide the account that we got when we signed in, with the matching sign in sign up authority
       // Which again, we set as the default authority so we don't need to provide it explicitly.
-      return await this.pca.acquireTokenSilent({ ...params, account });
+      try {
+        return await this.pca.acquireTokenSilent({ ...params, account });
+      } catch (error) {
+        if (error.message.includes(B2CClient.B2C_EXPIRED_GRANT)) {
+          await this.pca.signOut({ ...params, account });
+          return await this.signIn(params);
+        } else {
+          throw error;
+        }
+      }
     } else {
       throw Error('Could not find existing account for sign in sign up policy');
     }
