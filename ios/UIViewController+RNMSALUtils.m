@@ -1,6 +1,6 @@
-#import "UIViewController+Utils.h"
+#import "UIViewController+RNMSALUtils.h"
 
-@implementation UIViewController (Utils)
+@implementation UIViewController (RNMSALUtils)
 
 +(UIViewController*) findBestViewController:(UIViewController*)vc {
 

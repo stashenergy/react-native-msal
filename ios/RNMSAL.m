@@ -3,7 +3,7 @@
 #import "React/RCTLog.h"
 #import <MSAL/MSAL.h>
 
-#import "UIViewController+Utils.h"
+#import "UIViewController+RNMSALUtils.h"
 
 @implementation RNMSAL
 

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		427C919A23F449A800864F8F /* UIViewController+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 427C919823F449A800864F8F /* UIViewController+Utils.m */; };
+		427C919A23F449A800864F8F /* UIViewController+RNMSALUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 427C919823F449A800864F8F /* UIViewController+RNMSALUtils.m */; };
 		B3E7B58A1CC2AC0600A0062D /* RNMSAL.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNMSAL.m */; };
 /* End PBXBuildFile section */
 
@@ -25,8 +25,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNMSAL.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNMSAL.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		427C919823F449A800864F8F /* UIViewController+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Utils.m"; sourceTree = "<group>"; };
-		427C919923F449A800864F8F /* UIViewController+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Utils.h"; sourceTree = "<group>"; };
+		427C919823F449A800864F8F /* UIViewController+RNMSALUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+RNMSALUtils.m"; sourceTree = "<group>"; };
+		427C919923F449A800864F8F /* UIViewController+RNMSALUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+RNMSALUtils.h"; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNMSAL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNMSAL.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNMSAL.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNMSAL.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -53,8 +53,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				427C919923F449A800864F8F /* UIViewController+Utils.h */,
-				427C919823F449A800864F8F /* UIViewController+Utils.m */,
+				427C919923F449A800864F8F /* UIViewController+RNMSALUtils.h */,
+				427C919823F449A800864F8F /* UIViewController+RNMSALUtils.m */,
 				B3E7B5881CC2AC0600A0062D /* RNMSAL.h */,
 				B3E7B5891CC2AC0600A0062D /* RNMSAL.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
@@ -118,7 +118,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				427C919A23F449A800864F8F /* UIViewController+Utils.m in Sources */,
+				427C919A23F449A800864F8F /* UIViewController+RNMSALUtils.m in Sources */,
 				B3E7B58A1CC2AC0600A0062D /* RNMSAL.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

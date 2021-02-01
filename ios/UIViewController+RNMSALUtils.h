@@ -1,6 +1,6 @@
 #import <UIKit/UIKit.h>
 
-@interface UIViewController (Utils)
+@interface UIViewController (RNMSALUtils)
 
 + (UIViewController *)currentViewController;
 
