@@ -63,7 +63,7 @@ RCT_REMAP_METHOD(createPublicClientApplication,
         if (msalError) {
             @throw(msalError);
         }
-        
+
         resolve(nil);
     } @catch (NSError *error) {
         reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
@@ -301,7 +301,7 @@ RCT_REMAP_METHOD(signout,
     [dict setObject:account.identifier forKey:@"identifier"];
     [dict setObject:(account.username ?: [NSNull null]) forKey:@"username"];
     [dict setObject:account.environment forKey:@"environment"];
-    [dict setObject:account.accountClaims forKey:@"claims"];
+    [dict setObject:(account.accountClaims ?: [NSNull null]) forKey:@"claims"];
     [dict setObject:account.homeAccountId.tenantId forKey:@"tenantId"];
     return [dict mutableCopy];
 }
