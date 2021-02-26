@@ -6,6 +6,7 @@ import type {
   MSALAccount,
   MSALSignoutParams,
   MSALResult,
+  IPublicClientApplication,
 } from './types';
 import { MSALPromptType } from './types';
 
@@ -24,10 +25,15 @@ function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
   }
 }
 
-export default class PublicClientApplication {
-  private _pca: MSALPublicClientApplication;
+export default class PublicClientApplication implements IPublicClientApplication {
+  private static readonly notInitializedError = Error('PublicClientApplication instance not initialized.');
+  private _pca?: MSALPublicClientApplication;
 
-  constructor(private readonly config: MSALConfiguration) {
+  constructor(private readonly config: MSALConfiguration, init = true) {
+    if (init) this.init();
+  }
+
+  public async init() {
     this._pca = new MSALPublicClientApplication(this.config);
   }
 
@@ -38,6 +44,7 @@ export default class PublicClientApplication {
    * used for acquiring subsequent tokens silently
    */
   public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
+    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const { promptType, ...paramsWithoutPromptType } = params;
     const {
       accessToken,
@@ -53,10 +60,10 @@ export default class PublicClientApplication {
     return {
       accessToken,
       account: {
-        identifier: account?.homeAccountId!,
-        environment: account?.environment,
-        tenantId: account?.tenantId!,
-        username: account?.username!,
+        identifier: account!.homeAccountId,
+        environment: account!.environment,
+        tenantId: account!.tenantId,
+        username: account!.username,
         claims: idTokenClaims,
       },
       expiresOn: expiresOn?.getTime()!,
@@ -74,6 +81,7 @@ export default class PublicClientApplication {
    * used for acquiring subsequent tokens silently
    */
   public async acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
+    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const {
       accessToken,
       account,
@@ -112,6 +120,7 @@ export default class PublicClientApplication {
    * @return Promise containing array of MSALAccount objects for which this application has refresh tokens.
    */
   public getAccounts(): Promise<MSALAccount[]> {
+    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const accounts = this._pca.getAllAccounts();
     return Promise.resolve(
       accounts.map((a) => {
@@ -125,6 +134,7 @@ export default class PublicClientApplication {
    * @return Promise containing MSALAccount object
    */
   public getAccount(accountIdentifier: string): Promise<MSALAccount> {
+    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const account = this._pca.getAccountByHomeId(accountIdentifier);
     if (account == null) {
       return Promise.reject('Account not found');
@@ -141,8 +151,9 @@ export default class PublicClientApplication {
    * @return A promise containing a boolean = true if account removal was successful
    * otherwise rejects
    */
-  public removeAccount(account: MSALAccount): Promise<boolean> {
-    this._pca.logout({
+  public async removeAccount(account: MSALAccount): Promise<boolean> {
+    if (!this._pca) throw PublicClientApplication.notInitializedError;
+    await this._pca.logout({
       account: {
         ...account,
         homeAccountId: account.identifier,
@@ -150,7 +161,7 @@ export default class PublicClientApplication {
         localAccountId: '',
       },
     });
-    return Promise.resolve(true);
+    return true;
   }
 
   /**

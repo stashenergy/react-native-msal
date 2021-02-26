@@ -1,5 +1,15 @@
 import type { Configuration } from '@azure/msal-browser';
 
+export interface IPublicClientApplication {
+  init(): Promise<void>;
+  acquireToken(params: MSALInteractiveParams): Promise<MSALResult>;
+  acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult>;
+  getAccounts(): Promise<MSALAccount[]>;
+  getAccount(accountIdentifier: string): Promise<MSALAccount>;
+  removeAccount(account: MSALAccount): Promise<boolean>;
+  signOut(params: MSALSignoutParams): Promise<boolean>;
+}
+
 export interface MSALConfiguration {
   auth: {
     clientId: string;

@@ -88,7 +88,7 @@ You'll need to mock the PublicClientApplication class for testing purposes. One 
 import PublicClientApplication from 'react-native-msal';
 jest.mock('react-native-msal');
 
-const MockPublicClientApplication = PublicClientApplication as jest.Mock<PublicClientApplication>;
+const MockPublicClientApplication = PublicClientApplication as jest.MockedClass<PublicClientApplication>;
 
 it('Creates a mock instance without calling native functions', () => {
   const mockPca = new MockPublicClientApplication({ auth: { clientId: '1234' } });

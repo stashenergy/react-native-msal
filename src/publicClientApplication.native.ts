@@ -7,11 +7,21 @@ import type {
   MSALAccount,
   MSALSignoutParams,
   MSALResult,
+  IPublicClientApplication,
 } from './types';
 
-export default class PublicClientApplication {
-  constructor(private readonly config: MSALConfiguration) {
-    RNMSAL.createPublicClientApplication(this.config);
+export default class PublicClientApplication implements IPublicClientApplication {
+  private isInitialized = false;
+
+  constructor(private readonly config: MSALConfiguration, init = true) {
+    if (init) this.init();
+  }
+
+  public async init() {
+    if (!this.isInitialized) {
+      await RNMSAL.createPublicClientApplication(this.config);
+      this.isInitialized = true;
+    }
   }
 
   /**
@@ -21,6 +31,7 @@ export default class PublicClientApplication {
    * used for acquiring subsequent tokens silently
    */
   public acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
+    this.throwIfNotInitialized();
     return RNMSAL.acquireToken(params);
   }
 
@@ -32,6 +43,7 @@ export default class PublicClientApplication {
    * used for acquiring subsequent tokens silently
    */
   public acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
+    this.throwIfNotInitialized();
     return RNMSAL.acquireTokenSilent(params);
   }
 
@@ -40,6 +52,7 @@ export default class PublicClientApplication {
    * @return Promise containing array of MSALAccount objects for which this application has refresh tokens.
    */
   public getAccounts(): Promise<MSALAccount[]> {
+    this.throwIfNotInitialized();
     return RNMSAL.getAccounts();
   }
 
@@ -47,6 +60,7 @@ export default class PublicClientApplication {
    * @return Promise containing MSALAccount object
    */
   public getAccount(accountIdentifier: string): Promise<MSALAccount> {
+    this.throwIfNotInitialized();
     return RNMSAL.getAccount(accountIdentifier);
   }
 
@@ -58,6 +72,7 @@ export default class PublicClientApplication {
    * otherwise rejects
    */
   public removeAccount(account: MSALAccount): Promise<boolean> {
+    this.throwIfNotInitialized();
     return RNMSAL.removeAccount(account);
   }
 
@@ -71,6 +86,13 @@ export default class PublicClientApplication {
    * @platform ios
    */
   public signOut(params: MSALSignoutParams): Promise<boolean> {
+    this.throwIfNotInitialized();
     return Platform.OS === 'ios' ? RNMSAL.signout(params) : this.removeAccount(params.account);
+  }
+
+  private throwIfNotInitialized() {
+    if (!this.isInitialized) {
+      throw Error('PublicClientApplication instance not initialized.');
+    }
   }
 }

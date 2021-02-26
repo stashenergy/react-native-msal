@@ -1,8 +1,6 @@
 import type { MSALConfiguration } from '../types';
-import _PublicClientApplication from '../publicClientApplication';
+import PublicClientApplication from '../publicClientApplication';
 jest.mock('../publicClientApplication');
-
-const PublicClientApplication = _PublicClientApplication as jest.Mock<_PublicClientApplication>;
 
 const testMsalConfig: MSALConfiguration = {
   auth: {
@@ -10,20 +8,30 @@ const testMsalConfig: MSALConfiguration = {
   },
 };
 
-beforeEach(() => {
-  PublicClientApplication.mockClear();
-});
+describe('PublicClientApplication', () => {
+  const MockedPCA = PublicClientApplication as jest.MockedClass<typeof PublicClientApplication>;
 
-it('mock works', () => {
-  const pca = new PublicClientApplication(testMsalConfig);
-  expect(PublicClientApplication).toHaveBeenCalledTimes(1);
-  expect(pca).not.toBeNull();
-});
+  beforeEach(() => {
+    MockedPCA.mockClear();
+  });
 
-it('mockClear works', async () => {
-  expect(PublicClientApplication).not.toHaveBeenCalled();
+  it('mock works', () => {
+    const pca = new MockedPCA(testMsalConfig);
+    expect(MockedPCA).toHaveBeenCalledTimes(1);
+    expect(pca).not.toBeNull();
+  });
 
-  const pca = new PublicClientApplication(testMsalConfig);
-  expect(PublicClientApplication).toHaveBeenCalledTimes(1);
-  expect(pca).not.toBeNull();
+  it('mockClear works', () => {
+    expect(MockedPCA).not.toHaveBeenCalled();
+
+    const pca = new MockedPCA(testMsalConfig);
+    expect(MockedPCA).toHaveBeenCalledTimes(1);
+    expect(pca).not.toBeNull();
+  });
+
+  it('Can call native function without error', async () => {
+    const pca = new MockedPCA(testMsalConfig);
+    await pca.getAccounts();
+    expect(pca.getAccounts).toHaveBeenCalledTimes(1);
+  });
 });
