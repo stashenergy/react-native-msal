@@ -58,7 +58,17 @@ const config: MSALConfiguration = {
     // authority: 'default-authority',
   },
 };
+
+// Option 1: Constructor calls an asynchronous init method for you, but you won't know when it's done and can't catch errors
 const pca = new PublicClientApplication(config);
+
+// Option 2: Skips init, so you can call it yourself and handle errors
+const pca = new PublicClientApplication(config, false);
+try {
+  await pca.init();
+} catch (error) {
+  console.error('Problem in configuration/setup:', error);
+}
 ```
 
 If you don't provide an authority, the common one will be used. This authority will be used as the default for calls to `acquireToken` and `acquireTokenSilent`.
