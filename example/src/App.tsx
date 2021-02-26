@@ -72,7 +72,7 @@ export default function App() {
           </TouchableOpacity>
         )}
 
-        {Platform.OS === 'ios' ? (
+        {Platform.OS === 'ios' && (
           <TouchableOpacity
             style={[styles.button, styles.switchButton]}
             onPress={() => setIosEphemeralSession(!iosEphemeralSession)}
@@ -80,7 +80,7 @@ export default function App() {
             <Text>Prefer ephemeral browser session (iOS only)</Text>
             <Switch value={iosEphemeralSession} onValueChange={setIosEphemeralSession} />
           </TouchableOpacity>
-        ) : null}
+        )}
       </View>
       <ScrollView style={styles.scrollView}>
         <Text>{JSON.stringify(authResult, null, 2)}</Text>
@@ -92,11 +92,13 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: '1%',
   },
   buttonContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: '0.5%',
+    paddingBottom: '1%',
+    margin: '-0.5%',
   },
   button: {
     backgroundColor: 'aliceblue',
@@ -104,7 +106,6 @@ const styles = StyleSheet.create({
     margin: '0.5%',
     padding: 8,
     width: '49%',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   disabledButton: {
@@ -114,11 +115,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     padding: 4,
+    margin: '0.5%',
     width: '99%',
   },
   scrollView: {
-    marginHorizontal: '1%',
-    marginBottom: '1%',
     borderWidth: 1,
     padding: 1,
   },
