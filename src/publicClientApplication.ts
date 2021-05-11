@@ -46,17 +46,10 @@ export default class PublicClientApplication implements IPublicClientApplication
   public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
     if (!this._pca) throw PublicClientApplication.notInitializedError;
     const { promptType, ...paramsWithoutPromptType } = params;
-    const {
-      accessToken,
-      account,
-      expiresOn,
-      idToken,
-      idTokenClaims,
-      scopes,
-      tenantId,
-    } = await this._pca.acquireTokenPopup(
-      promptType ? { ...paramsWithoutPromptType, prompt: promptTypeToString(promptType) } : paramsWithoutPromptType
-    );
+    const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
+      await this._pca.acquireTokenPopup(
+        promptType ? { ...paramsWithoutPromptType, prompt: promptTypeToString(promptType) } : paramsWithoutPromptType
+      );
     return {
       accessToken,
       account: {
@@ -82,23 +75,16 @@ export default class PublicClientApplication implements IPublicClientApplication
    */
   public async acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
     if (!this._pca) throw PublicClientApplication.notInitializedError;
-    const {
-      accessToken,
-      account,
-      expiresOn,
-      idToken,
-      idTokenClaims,
-      scopes,
-      tenantId,
-    } = await this._pca.acquireTokenSilent({
-      ...params,
-      account: {
-        ...params.account,
-        homeAccountId: params.account.identifier,
-        environment: params.account.environment ?? '',
-        localAccountId: '',
-      },
-    });
+    const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
+      await this._pca.acquireTokenSilent({
+        ...params,
+        account: {
+          ...params.account,
+          homeAccountId: params.account.identifier,
+          environment: params.account.environment ?? '',
+          localAccountId: '',
+        },
+      });
     return {
       accessToken,
       account: {
