@@ -44,7 +44,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void createPublicClientApplication(ReadableMap params) {
+    public void createPublicClientApplication(ReadableMap params, Promise promise) {
         ReactApplicationContext context = getReactApplicationContext();
         try {
             InputStream inputStream = context.getAssets().open("msal_config.json");
@@ -54,7 +54,9 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             publicClientApplication =
                     PublicClientApplication.createMultipleAccountPublicClientApplication(
                             context, file);
-        } catch (Exception ignored) {
+            promise.resolve(null);
+        } catch (Exception e) {
+            promise.reject(e);
         }
     }
 
