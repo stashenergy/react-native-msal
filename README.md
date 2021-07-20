@@ -62,7 +62,7 @@ const config: MSALConfiguration = {
 // Option 1: Constructor calls an asynchronous init method for you, but you won't know when it's done and can't catch errors
 const pca = new PublicClientApplication(config);
 
-// Option 2: Skips init, so you can call it yourself and handle errors
+// Option 2 (RECOMMENDED): Skips init, so you can call it yourself and handle errors
 const pca = new PublicClientApplication(config, false);
 try {
   await pca.init();
