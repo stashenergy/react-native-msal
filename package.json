@@ -41,10 +41,13 @@
     "url": "https://github.com/stashenergy/react-native-msal/issues"
   },
   "homepage": "https://github.com/stashenergy/react-native-msal#readme",
+  "dependencies": {
+    "@azure/msal-browser": "^2.1.0"
+  },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
     "@commitlint/config-conventional": "^12.1.1",
-    "@react-native-community/eslint-config": "^2.0.0",
+    "@react-native-community/eslint-config": "^3.0.0",
     "@types/jest": "^26.0.23",
     "@types/react": "^17.0.5",
     "@types/react-native": "^0.64.5",
@@ -52,8 +55,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "gh-pages": "^3.1.0",
-    "husky": "^6.0.0",
-    "jest": "^26.4.2",
+    "husky": "^7.0.0",
+    "jest": "^27.0.6",
     "metro-react-native-babel-preset": "^0.66.0",
     "prettier": "^2.3.0",
     "react": "^17.0.2",
@@ -84,6 +87,10 @@
       "prettier"
     ],
     "rules": {
+      "no-shadow": "off",
+      "@typescript-eslint/no-shadow": [
+        "error"
+      ],
       "prettier/prettier": [
         "error",
         {
@@ -116,8 +123,5 @@
       "module",
       "typescript"
     ]
-  },
-  "dependencies": {
-    "@azure/msal-browser": "^2.1.0"
   }
 }
