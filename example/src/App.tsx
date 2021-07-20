@@ -8,7 +8,7 @@ import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
 import B2CClient from './b2cClient';
 import { b2cConfig, b2cScopes as scopes } from './msalConfig';
 
-const b2cClient = new B2CClient(b2cConfig);
+const b2cClient = new B2CClient(b2cConfig, false);
 
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
@@ -19,9 +19,14 @@ export default function App() {
 
   React.useEffect(() => {
     async function init() {
-      const isSignedIn = await b2cClient.isSignedIn();
-      if (isSignedIn) {
-        setAuthResult(await b2cClient.acquireTokenSilent({ scopes }));
+      try {
+        await b2cClient.init();
+        const isSignedIn = await b2cClient.isSignedIn();
+        if (isSignedIn) {
+          setAuthResult(await b2cClient.acquireTokenSilent({ scopes }));
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
     init();

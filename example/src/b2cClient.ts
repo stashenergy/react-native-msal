@@ -40,7 +40,7 @@ export default class B2CClient {
    * @param policies An object containing the policies you will be using.
    * The sign in sign up policy is required, the rest are optional
    */
-  constructor(private readonly config: B2CConfiguration) {
+  constructor(private readonly config: B2CConfiguration, init = true) {
     // Set the default authority for the PublicClientApplication (PCA). If we don't provide one,
     // it will use the default, common authority
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,10 +49,17 @@ export default class B2CClient {
     // We need to provide all authorities we'll be using up front
     const knownAuthorities = Object.values(policies).map((policy) => this.getAuthority(policy));
     // Instantiate the PCA
-    this.pca = new PublicClientApplication({
-      ...this.config,
-      auth: { authority, knownAuthorities, ...restOfAuthConfig },
-    });
+    this.pca = new PublicClientApplication(
+      {
+        ...this.config,
+        auth: { authority, knownAuthorities, ...restOfAuthConfig },
+      },
+      init
+    );
+  }
+
+  public async init() {
+    await this.pca.init();
   }
 
   /** Initiates an interactive sign-in. If the user clicks "Forgot Password", and a reset password policy
