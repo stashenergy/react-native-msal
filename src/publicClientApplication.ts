@@ -1,4 +1,5 @@
 import { PublicClientApplication as MSALPublicClientApplication } from '@azure/msal-browser';
+
 import type {
   MSALConfiguration,
   MSALInteractiveParams,
@@ -123,7 +124,7 @@ export default class PublicClientApplication implements IPublicClientApplication
     if (!this._pca) throw PublicClientApplication.notInitializedError;
     const account = this._pca.getAccountByHomeId(accountIdentifier);
     if (account == null) {
-      return Promise.reject('Account not found');
+      return Promise.reject(Error('Account not found'));
     } else {
       const { homeAccountId: identifier, environment, tenantId, username } = account;
       return Promise.resolve({ identifier, environment, tenantId, username });

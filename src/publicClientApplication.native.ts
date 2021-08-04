@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+
 import RNMSAL from './nativeModule';
 import type {
   MSALConfiguration,

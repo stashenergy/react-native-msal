@@ -6,12 +6,10 @@
 .expo/
 
 # VSCode
-.vscode/
-jsconfig.json
+.history/
 
 # Xcode
 #
-build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -31,6 +29,9 @@ project.xcworkspace
 
 # Android/IJ
 #
+**/android/**/build/
+/build
+
 .idea
 .gradle
 local.properties
