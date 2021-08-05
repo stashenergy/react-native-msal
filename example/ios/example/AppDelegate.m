@@ -26,6 +26,14 @@ static void InitializeFlipper(UIApplication *application) {
 
 @implementation AppDelegate
 
+- (BOOL)application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+{
+    return [MSALPublicClientApplication handleMSALResponse:url
+                                         sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]];
+}
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 #ifdef FB_SONARKIT_ENABLED
@@ -58,14 +66,6 @@ static void InitializeFlipper(UIApplication *application) {
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
-}
-
-- (BOOL)application:(UIApplication *)app
-            openURL:(NSURL *)url
-            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
-{
-    return [MSALPublicClientApplication handleMSALResponse:url
-                                         sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]];
 }
 
 @end

@@ -41,16 +41,17 @@ function setAppDelegate(appDelegate: string) {
   const [firstLine, ...restOfLines] = appDelegate.split('\n');
   appDelegate = firstLine + '\n\n#import <MSAL/MSAL.h>\n' + restOfLines.join('\n');
   appDelegate = appDelegate.replace(
-    '@end',
-    `- (BOOL)application:(UIApplication *)app
+    '@implementation AppDelegate\n',
+    `@implementation AppDelegate
+
+- (BOOL)application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
     return [MSALPublicClientApplication handleMSALResponse:url
                                          sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]];
 }
-
-@end`
+`
   );
   return appDelegate;
 }
