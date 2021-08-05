@@ -29,9 +29,9 @@ project.xcworkspace
 
 # Android/IJ
 #
-**/android/**/build/
+/example/android/**/build/
+/android/**/build/
 /build
-
 .idea
 .gradle
 local.properties

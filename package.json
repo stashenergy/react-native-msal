@@ -4,19 +4,6 @@
   "description": "React Native wrapper for iOS and Android",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "react-native": "src/index.ts",
-  "source": "src/index",
-  "files": [
-    "src",
-    "lib",
-    "!**/__tests__",
-    "!**/__fixtures__",
-    "!**/__mocks__",
-    "android",
-    "ios",
-    "reactnativemsal.podspec",
-    "!lib/typescript/example"
-  ],
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",
@@ -93,47 +80,11 @@
       "@commitlint/config-conventional"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "@react-native-community",
-      "prettier"
-    ],
-    "rules": {
-      "no-shadow": "off",
-      "@typescript-eslint/no-shadow": [
-        "error"
-      ],
-      "prettier/prettier": [
-        "error",
-        {
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false,
-          "printWidth": 120
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "node_modules/",
-    "lib/",
-    "example/web-build"
-  ],
   "prettier": {
     "singleQuote": true,
     "tabWidth": 2,
     "trailingComma": "es5",
     "useTabs": false,
     "printWidth": 120
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "commonjs",
-      "module",
-      "typescript"
-    ]
   }
 }
