@@ -28,15 +28,15 @@ export interface MSALAndroidConfig {
   broker_redirect_uri_registered: boolean;
   redirect_uri: string;
   authorities?: {
-      type: string;
-      default: boolean;
-      authority_url?: string;
-      audience?: {
-        type: "AzureADandPersonalMicrosoftAccount" | "PersonalMicrosoftAccount" | "AzureADMultipleOrgs" | "AzureADMyOrg";
-        tenant_id?: string;
-      };
-    }[];
-  authorization_user_agent?: "DEFAULT" | "BROWSER" | "WEBVIEW";
+    type: string;
+    default: boolean;
+    authority_url?: string;
+    audience?: {
+      type: 'AzureADandPersonalMicrosoftAccount' | 'PersonalMicrosoftAccount' | 'AzureADMultipleOrgs' | 'AzureADMyOrg';
+      tenant_id?: string;
+    };
+  }[];
+  authorization_user_agent?: 'DEFAULT' | 'BROWSER' | 'WEBVIEW';
   [key: string]: any;
 }
 
