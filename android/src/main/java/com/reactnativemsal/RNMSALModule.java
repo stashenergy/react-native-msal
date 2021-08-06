@@ -31,6 +31,7 @@ import com.microsoft.identity.client.SilentAuthenticationCallback;
 import com.microsoft.identity.client.exception.MsalException;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -45,6 +46,9 @@ import java.util.regex.Pattern;
 public class RNMSALModule extends ReactContextBaseJavaModule {
     private static final String AUTHORITY_TYPE_B2C = "B2C";
     private static final String AUTHORITY_TYPE_AAD = "AAD";
+
+    private static final Pattern aadMyOrgAuthorityPattern = Pattern.compile("https://login.microsoftonline.com/(?<tenant>.+)");
+    private static final Pattern b2cAuthorityPattern = Pattern.compile("https://.+?/tfp/(?<tenant>.+?)/.+");
 
     private IMultipleAccountPublicClientApplication publicClientApplication;
 
@@ -61,86 +65,49 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void createPublicClientApplication(ReadableMap params, Promise promise) {
         ReactApplicationContext context = getReactApplicationContext();
-
-        Pattern aadMyOrgAuthorityPattern = Pattern.compile("https://login.microsoftonline.com/(?<tenant>.+)");
-        Pattern b2cAuthorityPattern = Pattern.compile("https://.+?/tfp/(?<tenant>.+?)/.+");
-
         try {
+            // We have to make a json file containing the MSAL configuration, then use that file to
+            // create the PublicClientApplication
+            // We first need to create the JSON model using the passed in parameters
             ReadableMap auth = params.getMap("auth");
 
-            String redirectUri = auth.getString("redirectUri");
+            String clientId = auth.getString("clientId"); // required in config
+            String redirectUri = auth.getString("redirectUri"); // required in config
+            String authority = auth.getString("authority"); // optional in config
+            ReadableArray knownAuthorities = auth.getArray("knownAuthorities"); // optional in config
+
+            // If the redirect uri is not provided we can create a best guess redirect uri based on
+            // our package details
             if (redirectUri == null) {
                 redirectUri = makeRedirectUri(context).toString();
             }
 
+            // If authority isn't provided it defaults to the "common" one
+            if (authority == null) {
+                authority = "https://login.microsoftonline.com/common";
+            }
+
+            // List WILL be instantiated and empty if `knownAuthorities` is null
+            List<String> authoritiesList = readableArrayToStringList(knownAuthorities);
+
+            // Make sure the `authority` makes it in the authority list
+            if (!authoritiesList.contains(authority)) {
+                authoritiesList.add(authority);
+            }
+
+            // The authoritiesList is just a list of urls (strings), but the native android MSAL
+            // library expects an array of objects, so we have to parse the urls
+            JSONArray authoritiesJsonArr = makeAuthoritiesJsonArray(authoritiesList, authority);
+
+            // Now that everything is ready, make our JSON config object
             JSONObject msalConfigJsonObj = new JSONObject()
                     .put("account_mode", "MULTIPLE")
                     .put("broker_redirect_uri_registered", false)
-                    .put("client_id", auth.getString("clientId")) // required
-                    .put("redirect_uri", redirectUri);
+                    .put("client_id", clientId)
+                    .put("redirect_uri", redirectUri)
+                    .put("authorities", authoritiesJsonArr);
 
-            ReadableArray knownAuthoritiesArray = auth.getArray("knownAuthorities");
-            String authority = auth.getString("authority");
-
-            String defaultAuthority = (authority != null) ? authority : "https://login.microsoftonline.com/common";
-
-            if (knownAuthoritiesArray != null) {
-                // The native android MSAL library expects an authorities array with authority objects,
-                // so we parse the received authority strings into objects
-                List<String> knownAuthorities = readableArrayToStringList(knownAuthoritiesArray);
-                JSONArray authoritiesJsonArr = new JSONArray();
-                boolean foundDefaultAuthority = false;
-                for (String knownAuthority : knownAuthorities) {
-                    JSONObject authorityJsonObj = new JSONObject();
-                    // Authority is set as the default if one is not set yet, and it matches `defaultAuthority`
-                    if (!foundDefaultAuthority && knownAuthority.equals(defaultAuthority)) {
-                        authorityJsonObj.put("default", true);
-                        foundDefaultAuthority = true;
-                    }
-
-                    // Get other properties based off of authority urls
-                    String type = null, audience_type = null, audience_tenantId = null, authorityUrl = null;
-                    Matcher b2cAuthorityMatcher = b2cAuthorityPattern.matcher(knownAuthority);
-                    Matcher aadMyOrgAuthorityMatcher = aadMyOrgAuthorityPattern.matcher(knownAuthority);
-
-                    if (knownAuthority.equals("https://login.microsoftonline.com/common")) {
-                        type = AUTHORITY_TYPE_AAD;
-                        audience_type = "AzureADandPersonalMicrosoftAccount";
-                    } else if (knownAuthority.equals("https://login.microsoftonline.com/organizations")) {
-                        type = AUTHORITY_TYPE_AAD;
-                        audience_type = "AzureADMultipleOrgs";
-                    } else if (knownAuthority.equals("https://login.microsoftonline.com/consumers")) {
-                        type = AUTHORITY_TYPE_AAD;
-                        audience_type = "PersonalMicrosoftAccount";
-                    } else if (b2cAuthorityMatcher.find()) {
-                        type = AUTHORITY_TYPE_B2C;
-                        authorityUrl = knownAuthority;
-                    } else if (aadMyOrgAuthorityMatcher.find()) {
-                        type = AUTHORITY_TYPE_AAD;
-                        audience_type = "AzureADMyOrg";
-                        audience_tenantId = aadMyOrgAuthorityMatcher.group(1);
-                    }
-
-                    authorityJsonObj
-                            .put("type", type)
-                            .put("authority_url", authorityUrl)
-                            .put("audience", audience_type == null ? null : new JSONObject()
-                                    .put("type", audience_type)
-                                    .put("tenant_id", audience_tenantId)
-                            );
-
-                    authoritiesJsonArr.put(authorityJsonObj);
-                }
-
-                // If a default authority was not found, we set the first authority as the default
-                if (!foundDefaultAuthority) {
-                    authoritiesJsonArr.getJSONObject(0).put("default", true);
-                }
-
-                msalConfigJsonObj.put("authorities", authoritiesJsonArr);
-            }
-
-            // Serialize the json config
+            // Serialize the JSON config to a string
             String serializedMsalConfig = msalConfigJsonObj.toString();
             Log.d("RNMSALModule", serializedMsalConfig);
 
@@ -151,7 +118,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             writer.write(serializedMsalConfig);
             writer.close();
 
-            // Create the PCA with the file
+            // Finally, create the PCA with the temporary config file we created
             publicClientApplication =
                     PublicClientApplication.createMultipleAccountPublicClientApplication(
                             context, file);
@@ -159,6 +126,62 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         } catch (Exception e) {
             promise.reject(e);
         }
+    }
+
+    private JSONArray makeAuthoritiesJsonArray(List<String> authorityUrls, String authority) throws JSONException {
+        JSONArray authoritiesJsonArr = new JSONArray();
+        boolean foundDefaultAuthority = false;
+
+        for (String authorityUrl : authorityUrls) {
+            JSONObject authorityJsonObj = new JSONObject();
+
+            // Authority is set as the default if one is not set yet, and it matches `authority`
+            if (!foundDefaultAuthority && authorityUrl.equals(authority)) {
+                authorityJsonObj.put("default", true);
+                foundDefaultAuthority = true;
+            }
+
+            // Parse this information from the authority url. Some variables will end up staying null
+            String type = null, audience_type = null, audience_tenantId = null, b2cAuthorityUrl = null;
+
+            Matcher b2cAuthorityMatcher = b2cAuthorityPattern.matcher(authorityUrl);
+            Matcher aadMyOrgAuthorityMatcher = aadMyOrgAuthorityPattern.matcher(authorityUrl);
+
+            if (authorityUrl.equals("https://login.microsoftonline.com/common")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADandPersonalMicrosoftAccount";
+            } else if (authorityUrl.equals("https://login.microsoftonline.com/organizations")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADMultipleOrgs";
+            } else if (authorityUrl.equals("https://login.microsoftonline.com/consumers")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "PersonalMicrosoftAccount";
+            } else if (b2cAuthorityMatcher.find()) {
+                type = AUTHORITY_TYPE_B2C;
+                b2cAuthorityUrl = authorityUrl;
+            } else if (aadMyOrgAuthorityMatcher.find()) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADMyOrg";
+                audience_tenantId = aadMyOrgAuthorityMatcher.group(1);
+            }
+
+            authorityJsonObj
+                    .put("type", type)
+                    .put("authority_url", b2cAuthorityUrl)
+                    .put("audience", audience_type == null ? null : new JSONObject()
+                            .put("type", audience_type)
+                            .put("tenant_id", audience_tenantId)
+                    );
+
+            authoritiesJsonArr.put(authorityJsonObj);
+        }
+
+        // If a default authority was not found, we set the first authority as the default
+        if (!foundDefaultAuthority && authoritiesJsonArr.length() > 0) {
+            authoritiesJsonArr.getJSONObject(0).put("default", true);
+        }
+
+        return authoritiesJsonArr;
     }
 
     private Uri makeRedirectUri(ReactApplicationContext context) throws Exception {
@@ -373,8 +396,10 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
 
     private List<String> readableArrayToStringList(ReadableArray readableArray) {
         List<String> list = new ArrayList<>();
-        for (Object item : readableArray.toArrayList()) {
-            list.add(item.toString());
+        if (readableArray != null) {
+            for (Object item : readableArray.toArrayList()) {
+                list.add(item.toString());
+            }
         }
         return list;
     }
