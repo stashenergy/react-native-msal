@@ -110,10 +110,12 @@ RCT_REMAP_METHOD(acquireToken,
 
         // Send request
         [application acquireTokenWithParameters:interactiveParams completionBlock:^(MSALResult * _Nullable result, NSError * _Nullable error) {
-            if (!error) {
+            if (error) {
+                reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+            } else if (result) {
                 resolve([self MSALResultToDictionary:result withAuthority:authority]);
             } else {
-                reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+                resolve(nil);
             }
         }];
     } @catch (NSError *error) {
@@ -153,10 +155,12 @@ RCT_REMAP_METHOD(acquireTokenSilent,
 
         // Send request
         [application acquireTokenSilentWithParameters:silentParams completionBlock:^(MSALResult * _Nullable result, NSError * _Nullable error) {
-            if (!error) {
+            if (error) {
+                reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+            } else if (result) {
                 resolve([self MSALResultToDictionary:result withAuthority:authority]);
             } else {
-                reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+                resolve(nil);
             }
         }];
     } @catch (NSError *error) {
@@ -176,11 +180,12 @@ RCT_REMAP_METHOD(getAccounts,
             @throw msalError;
         }
 
-        NSMutableArray * accounts = [NSMutableArray arrayWithCapacity:1];
-        for (MSALAccount *account in _accounts) {
-            [accounts addObject:[self MSALAccountToDictionary:account]];
+        NSMutableArray *accounts = [NSMutableArray arrayWithCapacity:1];
+        if (_accounts) {
+            for (MSALAccount *account in _accounts) {
+                [accounts addObject:[self MSALAccountToDictionary:account]];
+            }
         }
-
         resolve(accounts);
     } @catch (NSError* error) {
         reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
@@ -199,8 +204,12 @@ RCT_REMAP_METHOD(getAccount,
         if (msalError) {
             @throw msalError;
         }
-
-        resolve([self MSALAccountToDictionary:account]);
+        
+        if (account) {
+            resolve([self MSALAccountToDictionary:account]);
+        } else {
+            resolve(nil);
+        }
     } @catch(NSError *error) {
         reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
     }
@@ -269,10 +278,10 @@ RCT_REMAP_METHOD(signout,
         signoutParameters.signoutFromBrowser = signoutFromBrowser;
 
         [application signoutWithAccount:account signoutParameters:signoutParameters completionBlock:^(BOOL success, NSError * _Nullable error) {
-            if (!error) {
-                resolve(success ? @YES : @NO);
-            } else {
+            if (error) {
                 reject([[NSString alloc] initWithFormat:@"%d", (int)error.code], error.description, error);
+            } else {
+                resolve(success ? @YES : @NO);
             }
         }];
 
@@ -281,7 +290,7 @@ RCT_REMAP_METHOD(signout,
     }
 }
 
-- (NSDictionary*)MSALResultToDictionary:(MSALResult*)result withAuthority:(NSString*)authority
+- (NSDictionary*)MSALResultToDictionary:(nonnull MSALResult*)result withAuthority:(NSString*)authority
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1];
 
@@ -295,7 +304,7 @@ RCT_REMAP_METHOD(signout,
     return [dict mutableCopy];
 }
 
-- (NSDictionary*)MSALAccountToDictionary:(MSALAccount*)account
+- (NSDictionary*)MSALAccountToDictionary:(nonnull MSALAccount*)account
 {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithCapacity:1];
     [dict setObject:account.identifier forKey:@"identifier"];
