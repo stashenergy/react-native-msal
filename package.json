@@ -4,6 +4,7 @@
   "description": "React Native wrapper for iOS and Android",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "source": "src/index",
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",
