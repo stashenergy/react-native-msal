@@ -7,7 +7,6 @@ import type {
   MSALSilentParams,
   MSALAccount,
   MSALSignoutParams,
-  MSALResult,
   IPublicClientApplication,
 } from './types';
 
@@ -25,70 +24,37 @@ export default class PublicClientApplication implements IPublicClientApplication
     }
   }
 
-  /**
-   * Acquire a token interactively
-   * @param {MSALInteractiveParams} params
-   * @return Result containing an access token and account identifier
-   * used for acquiring subsequent tokens silently
-   */
-  public acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
+  public async acquireToken(params: MSALInteractiveParams) {
     this.throwIfNotInitialized();
-    return RNMSAL.acquireToken(params);
+    return await RNMSAL.acquireToken(params);
   }
 
-  /**
-   * Acquire a token silently
-   * @param {MSALSilentParams} params - Includes the account identifer retrieved from a
-   * previous interactive login
-   * @return Result containing an access token and account identifier
-   * used for acquiring subsequent tokens silently
-   */
-  public acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
+  public async acquireTokenSilent(params: MSALSilentParams) {
     this.throwIfNotInitialized();
-    return RNMSAL.acquireTokenSilent(params);
+    return await RNMSAL.acquireTokenSilent(params);
   }
 
-  /**
-   * Get all accounts for which this application has refresh tokens
-   * @return Promise containing array of MSALAccount objects for which this application has refresh tokens.
-   */
-  public getAccounts(): Promise<MSALAccount[]> {
+  public async getAccounts() {
     this.throwIfNotInitialized();
-    return RNMSAL.getAccounts();
+    return await RNMSAL.getAccounts();
   }
 
-  /** Retrieve the account matching the identifier
-   * @return Promise containing MSALAccount object
-   */
-  public getAccount(accountIdentifier: string): Promise<MSALAccount> {
+  public async getAccount(accountIdentifier: string) {
     this.throwIfNotInitialized();
-    return RNMSAL.getAccount(accountIdentifier);
+    return await RNMSAL.getAccount(accountIdentifier);
   }
 
-  /**
-   * Removes all tokens from the cache for this application for the provided
-   * account.
-   * @param {MSALAccount} account
-   * @return A promise containing a boolean = true if account removal was successful
-   * otherwise rejects
-   */
-  public removeAccount(account: MSALAccount): Promise<boolean> {
+  public async removeAccount(account: MSALAccount) {
     this.throwIfNotInitialized();
-    return RNMSAL.removeAccount(account);
+    return await RNMSAL.removeAccount(account);
   }
 
-  /**
-   * NOTE: iOS only. On Android this is the same as `removeAccount`
-   * Removes all tokens from the cache for this application for the provided
-   * account. Additionally, this will remove the account from the system browser.
-   * @param {MSALSignoutParams} params
-   * @return A promise which resolves if sign out is successful,
-   * otherwise rejects
-   * @platform ios
-   */
-  public signOut(params: MSALSignoutParams): Promise<boolean> {
+  public async signOut(params: MSALSignoutParams) {
     this.throwIfNotInitialized();
-    return Platform.OS === 'ios' ? RNMSAL.signout(params) : this.removeAccount(params.account);
+    return await Platform.select({
+      ios: RNMSAL.signout(params),
+      default: RNMSAL.removeAccount(params.account),
+    });
   }
 
   private throwIfNotInitialized() {
