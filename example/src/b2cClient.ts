@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import PublicClientApplication, {
   MSALInteractiveParams,
   MSALResult,
@@ -7,7 +8,6 @@ import PublicClientApplication, {
   MSALWebviewParams,
   MSALConfiguration,
 } from 'react-native-msal';
-import { Platform } from 'react-native';
 
 export interface B2CPolicies {
   signInSignUp: string;
@@ -34,21 +34,22 @@ export default class B2CClient {
   private pca: PublicClientApplication;
 
   /** Construct a B2CClient object
-   * @param clientId The id of the b2c application
-   * @param authorityBase The authority URL, without a policy name.
-   * Has the form: https://TENANT_NAME.b2clogin.com/tfp/TENANT_NAME.onmicrosoft.com/
-   * @param policies An object containing the policies you will be using.
-   * The sign in sign up policy is required, the rest are optional
+   * @param config The configuration object for the B2CClient
+   * @param init  Whether to initialize the B2CClient immediately. Defaults to `true`
+   * for the sake of backwards compatibility. Recommended to set to `false` and call `init()` yourself
    */
   constructor(private readonly config: B2CConfiguration, init = true) {
-    // Set the default authority for the PublicClientApplication (PCA). If we don't provide one,
-    // it will use the default, common authority
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Set the sign in sign up policy as the default authority for the PublicClientApplication (PCA).
     const { authorityBase: _, policies, ...restOfAuthConfig } = this.config.auth;
-    const authority = this.getAuthority(policies.signInSignUp);
-    // We need to provide all authorities we'll be using up front
-    const knownAuthorities = Object.values(policies).map((policy) => this.getAuthority(policy));
-    // Instantiate the PCA
+    const { signInSignUp, ...otherPolicies } = policies;
+    const authority = this.getAuthority(signInSignUp);
+
+    // We also need to provide all authorities we'll be using up front.
+    // The default authority (`authority`) should be included in this list.
+    // If it's not, the first authority in the array is set as the default.
+    const knownAuthorities = [authority, ...Object.values(otherPolicies).map((policy) => this.getAuthority(policy))];
+
+    // Now we can instantiate the PCA
     this.pca = new PublicClientApplication(
       {
         ...this.config,

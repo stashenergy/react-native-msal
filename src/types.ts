@@ -15,6 +15,10 @@ export interface MSALConfiguration {
     clientId: string;
     authority?: string;
     knownAuthorities?: string[];
+    /**
+     * If you are providing this property, you should probably use `Platform.select`,
+     * because the redirect uris will be different for each platform.
+     */
     redirectUri?: string;
   };
   /**
