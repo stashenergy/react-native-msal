@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -260,7 +261,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(IAuthenticationResult authenticationResult) {
-                promise.resolve(msalResultToDictionary(authenticationResult));
+                if (authenticationResult != null) {
+                    promise.resolve(msalResultToDictionary(authenticationResult));
+                } else {
+                    promise.resolve(null);
+                }
             }
 
             @Override
@@ -312,7 +317,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return new SilentAuthenticationCallback() {
             @Override
             public void onSuccess(IAuthenticationResult authenticationResult) {
-                promise.resolve(msalResultToDictionary(authenticationResult));
+                if (authenticationResult != null) {
+                    promise.resolve(msalResultToDictionary(authenticationResult));
+                } else {
+                    promise.resolve(null);
+                }
             }
 
             @Override
@@ -327,8 +336,10 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         try {
             List<IAccount> accounts = publicClientApplication.getAccounts();
             WritableArray array = Arguments.createArray();
-            for (IAccount account : accounts) {
-                array.pushMap(accountToMap(account));
+            if (accounts != null) {
+                for (IAccount account : accounts) {
+                    array.pushMap(accountToMap(account));
+                }
             }
             promise.resolve(array);
         } catch (Exception e) {
@@ -340,7 +351,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     public void getAccount(String accountIdentifier, Promise promise) {
         try {
             IAccount account = publicClientApplication.getAccount(accountIdentifier);
-            promise.resolve(accountToMap(account));
+            if (account != null) {
+                promise.resolve(accountToMap(account));
+            } else {
+                promise.resolve(null);
+            }
         } catch (Exception e) {
             promise.reject(e);
         }
@@ -371,7 +386,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private WritableMap msalResultToDictionary(IAuthenticationResult result) {
+    private WritableMap msalResultToDictionary(@NonNull IAuthenticationResult result) {
         WritableMap map = Arguments.createMap();
         map.putString("accessToken", result.getAccessToken());
         map.putString("expiresOn", String.format("%s", result.getExpiresOn().getTime() / 1000));
@@ -382,7 +397,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
-    private WritableMap accountToMap(IAccount account) {
+    private WritableMap accountToMap(@NonNull IAccount account) {
         WritableMap map = Arguments.createMap();
         map.putString("identifier", account.getId());
         map.putString("username", account.getUsername());
@@ -394,7 +409,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
-    private List<String> readableArrayToStringList(ReadableArray readableArray) {
+    private List<String> readableArrayToStringList(@Nullable ReadableArray readableArray) {
         List<String> list = new ArrayList<>();
         if (readableArray != null) {
             for (Object item : readableArray.toArrayList()) {
@@ -404,7 +419,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return list;
     }
 
-    private WritableMap toWritableMap(Map<String, ?> map) {
+    private WritableMap toWritableMap(@NonNull Map<String, ?> map) {
         WritableMap writableMap = Arguments.createMap();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             String key = entry.getKey();
@@ -428,7 +443,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return writableMap;
     }
 
-    private WritableArray toWritableArray(List<?> list) {
+    private WritableArray toWritableArray(@NonNull List<?> list) {
         WritableArray writableArray = Arguments.createArray();
         for (Object value : list.toArray()) {
             if (value == null) {
