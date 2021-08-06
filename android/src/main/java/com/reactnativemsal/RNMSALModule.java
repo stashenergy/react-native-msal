@@ -118,7 +118,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
                     } else if (aadMyOrgAuthorityMatcher.find()) {
                         type = AUTHORITY_TYPE_AAD;
                         audience_type = "AzureADMyOrg";
-                        audience_tenantId = b2cAuthorityMatcher.group(1);
+                        audience_tenantId = aadMyOrgAuthorityMatcher.group(1);
                     }
 
                     authorityJsonObj
