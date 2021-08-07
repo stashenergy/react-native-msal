@@ -1,4 +1,4 @@
-import PublicClientApplication from '../publicClientApplication';
+import { PublicClientApplication } from '../publicClientApplication';
 import type { MSALConfiguration } from '../types';
 jest.mock('../publicClientApplication');
 
