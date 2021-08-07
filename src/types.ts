@@ -2,11 +2,6 @@ import type { Configuration } from '@azure/msal-browser';
 
 export interface IPublicClientApplication {
   /**
-   * Initialize the public client application.
-   */
-  init(): Promise<void>;
-
-  /**
    * Acquire a token interactively
    * @param {MSALInteractiveParams} params
    * @return Result containing an access token and account identifier
@@ -29,7 +24,8 @@ export interface IPublicClientApplication {
    */
   getAccounts(): Promise<MSALAccount[]>;
 
-  /** Retrieve the account matching the identifier
+  /**
+   * Retrieve the account matching the identifier
    * @return Promise containing MSALAccount object
    */
   getAccount(accountIdentifier: string): Promise<MSALAccount | undefined>;

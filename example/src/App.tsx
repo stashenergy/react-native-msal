@@ -5,10 +5,10 @@
 import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
-import B2CClient from './b2cClient';
+import { B2CClient, createB2CClient } from './b2cClient';
 import { b2cConfig, b2cScopes as scopes } from './msalConfig';
 
-const b2cClient = new B2CClient(b2cConfig, false);
+let b2cClient: B2CClient | undefined;
 
 export default function App() {
   const [authResult, setAuthResult] = React.useState<MSALResult | null>(null);
@@ -20,7 +20,7 @@ export default function App() {
   React.useEffect(() => {
     async function init() {
       try {
-        await b2cClient.init();
+        b2cClient = await createB2CClient(b2cConfig);
         const isSignedIn = await b2cClient.isSignedIn();
         if (isSignedIn) {
           setAuthResult(await b2cClient.acquireTokenSilent({ scopes }));
@@ -43,7 +43,7 @@ export default function App() {
 
   const handleAcquireTokenPress = async () => {
     try {
-      const res = await b2cClient.acquireTokenSilent({ scopes });
+      const res = await b2cClient.acquireTokenSilent({ scopes, forceRefresh: true });
       setAuthResult(res);
     } catch (error) {
       console.warn(error);

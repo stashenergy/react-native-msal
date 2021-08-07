@@ -11,35 +11,18 @@ import type {
 } from './types';
 import { MSALPromptType } from './types';
 
-type PromptTypeString = 'consent' | 'login' | 'select_account' | 'none';
+export class PublicClientApplication implements IPublicClientApplication {
+  private _pca: MSALPublicClientApplication;
 
-function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
-  switch (promptType) {
-    case MSALPromptType.SELECT_ACCOUNT:
-      return 'select_account';
-    case MSALPromptType.LOGIN:
-      return 'login';
-    case MSALPromptType.CONSENT:
-      return 'consent';
-    case MSALPromptType.WHEN_REQUIRED:
-      return 'none';
-  }
-}
-
-export default class PublicClientApplication implements IPublicClientApplication {
-  private static readonly notInitializedError = Error('PublicClientApplication instance not initialized.');
-  private _pca?: MSALPublicClientApplication;
-
-  constructor(private readonly config: MSALConfiguration, init = true) {
-    if (init) this.init();
-  }
-
-  public async init() {
+  constructor(private readonly config: MSALConfiguration) {
     this._pca = new MSALPublicClientApplication(this.config);
   }
 
+  public async init() {
+    return this;
+  }
+
   public async acquireToken(params: MSALInteractiveParams) {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const { promptType, ...paramsWithoutPromptType } = params;
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenPopup(
@@ -63,7 +46,6 @@ export default class PublicClientApplication implements IPublicClientApplication
   }
 
   public async acquireTokenSilent(params: MSALSilentParams) {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenSilent({
         ...params,
@@ -92,7 +74,6 @@ export default class PublicClientApplication implements IPublicClientApplication
   }
 
   public getAccounts() {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const accounts = this._pca.getAllAccounts();
     return Promise.resolve(
       accounts.map((a) => {
@@ -104,7 +85,6 @@ export default class PublicClientApplication implements IPublicClientApplication
   }
 
   public getAccount(accountIdentifier: string) {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
     const account = this._pca.getAccountByHomeId(accountIdentifier);
     if (account == null) {
       return Promise.reject(Error('Account not found'));
@@ -116,8 +96,7 @@ export default class PublicClientApplication implements IPublicClientApplication
   }
 
   public async removeAccount(account: MSALAccount) {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
-    await this._pca.logout({
+    await this._pca.logoutRedirect({
       account: {
         ...account,
         homeAccountId: account.identifier,
@@ -130,5 +109,19 @@ export default class PublicClientApplication implements IPublicClientApplication
 
   public async signOut(params: MSALSignoutParams) {
     return await this.removeAccount(params.account);
+  }
+}
+
+type PromptTypeString = 'consent' | 'login' | 'select_account' | 'none';
+function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
+  switch (promptType) {
+    case MSALPromptType.SELECT_ACCOUNT:
+      return 'select_account';
+    case MSALPromptType.LOGIN:
+      return 'login';
+    case MSALPromptType.CONSENT:
+      return 'consent';
+    case MSALPromptType.WHEN_REQUIRED:
+      return 'none';
   }
 }

@@ -1,4 +1,12 @@
-import PublicClientApplication from './publicClientApplication';
+import { PublicClientApplication } from './publicClientApplication';
+import { IPublicClientApplication, MSALConfiguration } from './types';
 
 export * from './types';
-export default PublicClientApplication;
+
+let instance: IPublicClientApplication;
+export async function createPublicClientApplication(config: MSALConfiguration): Promise<IPublicClientApplication> {
+  if (!instance) {
+    instance = await new PublicClientApplication(config).init();
+  }
+  return instance;
+}

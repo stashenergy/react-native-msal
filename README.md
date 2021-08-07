@@ -43,87 +43,56 @@ Don't forget to run `npx pod-install` after!
 
 ## Use
 
-### `PublicClientApplication` class
-
-This class is designed to be a thin wrapper around the native functionality of the Android and iOS MSAL libraries.
-
-#### Creating an instance
-
 ```typescript
-import PublicClientApplication, { MSALConfiguration } from 'react-native-msal';
+import { createPublicClientApplication, MSALConfiguration } from 'react-native-msal';
 
 const config: MSALConfiguration = {
   auth: {
     clientId: 'your-client-id',
-    // authority: 'default-authority',
+    // This authority is used as the default in `acquireToken` and `acquireTokenSilent` if not provided to those methods.
+    // Defaults to 'https://login.microsoftonline.com/common'
+    authority: 'https://<authority url>',
   },
 };
+const scopes = ['scope1', 'scope2'];
 
-// Option 1: Constructor calls an asynchronous init method for you, but you won't know when it's done and can't catch errors
-const pca = new PublicClientApplication(config);
-
-// Option 2 (RECOMMENDED): Skips init, so you can call it yourself and handle errors
-const pca = new PublicClientApplication(config, false);
+// Initialize the public client application:
+let pca: IPublicClientApplication | undefined;
 try {
-  await pca.init();
+  pca = await createPublicClientApplication(config);
 } catch (error) {
-  console.error('Problem in configuration/setup:', error);
+  console.error('Error creating the pca: ', error);
 }
-```
 
-If you don't provide an authority, the common one will be used. This authority will be used as the default for calls to `acquireToken` and `acquireTokenSilent`.
+// Acquiring a token for the first time, you must call pca.acquireToken
+const params: MSALInteractiveParams = { scopes };
+let result: MSALResult | undefined = await pca.acquireToken(params);
 
-#### Signing in interactively
-
-```typescript
-const params: MSALInteractiveParams = {
-  scopes: ['scope1', 'scope2'],
+// On subsequent token acquisitions, you can call `pca.acquireTokenSilent`
+// Force the token to refresh with the `forceRefresh` option
+const silentParams: MSALSilentParams = {
+  account: result.account, // or get this by filtering the result from `pca.getAccounts` (see below)
+  scopes,
+  forceRefresh: true,
 };
-const result: MSALResult = await pca.acquireToken(params);
-```
+result = await pca.acquireTokenSilent(silentParams);
 
-You must use this method before any calls to `acquireTokenSilent`.
-Use the `accessToken` from the MSALResult to call your API.
-Store the `account` from the result for acquiring tokens silently or for removing the account.
-
-#### Acquiring tokens silently
-
-```typescript
-const params: MSALSilentParams = {
-  scopes: ['scope1', 'scope2'],
-  account: result.account,
-  // forceRefresh: true,
-};
-const result = await pca.acquireTokenSilent(params);
-```
-
-You can force the token to refresh with the `forceRefresh` option
-
-#### Listing all accounts for which the application has refresh tokens
-
-```typescript
+// Get all accounts for which this application has refresh tokens
 const accounts: MSALAccount[] = await pca.getAccounts();
-```
 
-Instead of storing the `account` from a MSALResult for an `acquireTokenSilent` method call, you can filter the MSALAccount[] result for a particular account and use it.
+// Retrieve the account matching the identifier
+const account: MSALAccount | undefined = await pca.getAccount(result!.account.identifier);
 
-#### Signing out
+// Remove all tokens from the cache for this application for the provided account
+let success: boolean = await pca.removeAccount(result!.account);
 
-```typescript
-const res: boolean = await pca.removeAccount(result.account);
-```
-
-Alternatively, you can call the `signOut` method:
-
-```typescript
-const params: MSALSignoutParams = {
-  account: result.account,
-  // signoutFromBrowser: true
+// Same as `pca.removeAccount` with the exception that, if called on iOS with the `signoutFromBrowser` option set to true, it will additionally remove the account from the system browser
+const signOutParams: MSALSignoutParams = {
+  account: result!.account,
+  signoutFromBrowser: true,
 };
-const res: boolean = await pca.signOut(params);
+success = await pca.signOut(signOutParams);
 ```
-
-On Android, this is the same as `removeAccount`, but on iOS, if you call it with `signoutFromBrowser: true`, it will sign you out of the browser as well.
 
 ### B2C Applications
 
@@ -137,7 +106,7 @@ If you would like to see this class included in the library itself, please let u
 
 As mentioned above, the example app demonstrates a B2C implementation
 
-To run the example locally, first clone the repo and run `$ yarn bootstrap` to install the depedencies. Then run the following for the desired platform:
+To run the example locally, first clone the repo and run `$ yarn` to bootstrap the project. Then run the following for the desired platform:
 
 iOS: `$ yarn example ios`  
 Android: `$ yarn example android`  
@@ -150,8 +119,7 @@ If you want to run the example using your own Azure application information:
    - iOS: `msauth.com.example://auth`
    - Web (SPA): `http://localhost:19006`
 1. Update the `b2cConfig` and `b2cScopes` variables in `msalConfig.ts` with your details.
-1. Update the `msal_config.json` Android asset file with your details.
 
-## Migrating from v2 to v3
+## Migrating between major versions
 
-See breaking changes in [CHANGELOG.md](CHANGELOG.md#300).
+See breaking changes in [CHANGELOG.md](CHANGELOG.md).
