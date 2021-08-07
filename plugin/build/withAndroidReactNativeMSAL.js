@@ -38,7 +38,29 @@ function setBrowserTabActivity(config, androidManifest, signatureHash) {
     ];
     return androidManifest;
 }
+// It's ok to have multiple allprojects.repositories, so we create a new one since it's cheaper than tokenizing
+// the existing block to find the correct place to insert our dependency.
+const gradleMaven = 'allprojects { repositories { maven { url "https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1" } } }';
+const withAndroidMSALGradle = (config) => {
+    return config_plugins_1.withProjectBuildGradle(config, (mod) => {
+        if (mod.modResults.language === 'groovy') {
+            mod.modResults.contents = setGradleMaven(mod.modResults.contents);
+        }
+        else {
+            throw new Error('Cannot add maven gradle because the build.gradle is not groovy');
+        }
+        return mod;
+    });
+};
+function setGradleMaven(buildGradle) {
+    // If this specific line is present, skip.
+    // This also enables users in bare workflow to comment out the line to prevent react-native-msal from adding it back.
+    if (buildGradle.includes('https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1')) {
+        return buildGradle;
+    }
+    return buildGradle + `\n${gradleMaven}\n`;
+}
 const withAndroidReactNativeMSAL = (config, { signatureHash }) => {
-    return withAndroidActivity(config, signatureHash);
+    return config_plugins_1.withPlugins(config, [[withAndroidActivity, signatureHash], withAndroidMSALGradle]);
 };
 exports.withAndroidReactNativeMSAL = withAndroidReactNativeMSAL;

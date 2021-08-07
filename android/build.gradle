@@ -5,7 +5,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.0.1'
+    classpath 'com.android.tools.build:gradle:4.0.2'
   }
 }
 
@@ -52,5 +52,5 @@ repositories {
 dependencies {
   // noinspection GradleDynamicVersion
   implementation 'com.facebook.react:react-native:+' // From node_modules
-  implementation 'com.microsoft.identity.client:msal:1.4.+'
+  implementation 'com.microsoft.identity.client:msal:2.1.+'
 }

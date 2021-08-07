@@ -37,3 +37,5 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
+
+allprojects { repositories { maven { url "https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1" } } }
