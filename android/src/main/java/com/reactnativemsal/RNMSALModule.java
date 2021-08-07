@@ -41,6 +41,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,43 +71,39 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             // We have to make a json file containing the MSAL configuration, then use that file to
             // create the PublicClientApplication
             // We first need to create the JSON model using the passed in parameters
+            JSONObject msalConfigJsonObj = new JSONObject().put("account_mode", "MULTIPLE");
+
             ReadableMap auth = params.getMap("auth");
+            ReadableMap androidOptions = params.getMap("androidOptions");
 
-            String clientId = auth.getString("clientId"); // required in config
-            String redirectUri = auth.getString("redirectUri"); // required in config
-            String authority = auth.getString("authority"); // optional in config
-            ReadableArray knownAuthorities = auth.getArray("knownAuthorities"); // optional in config
+            // Authority
+            String authority = getStringOrDefault(auth, "authority", "https://login.microsoftonline.com/common");
+            msalConfigJsonObj.put("authority", authority);
 
-            // If the redirect uri is not provided we can create a best guess redirect uri based on
-            // our package details
-            if (redirectUri == null) {
-                redirectUri = makeRedirectUri(context).toString();
-            }
+            // Authorization User Agent. Valid values: "DEFAULT", "BROWSER" "WEBVIEW"
+            msalConfigJsonObj.put("authorization_user_agent", getStringOrDefault(androidOptions, "authorizationUserAgent", "DEFAULT"));
 
-            // If authority isn't provided it defaults to the "common" one
-            if (authority == null) {
-                authority = "https://login.microsoftonline.com/common";
-            }
+            // Broker redirect uri registered (boolean). Defaults to false
+            msalConfigJsonObj.put("broker_redirect_uri_registered", androidOptions != null && androidOptions.getBoolean("brokerRedirectUriRegistered"));
 
+            // Client id
+            msalConfigJsonObj.put("client_id", getStringOrThrow(auth, "clientId"));
+
+            // Redirect URI
+            msalConfigJsonObj.put("redirect_uri", auth.hasKey("redirectUri") ? auth.getString("redirectUri") : makeRedirectUri(context).toString());
+
+            // Authorities
+            ReadableArray knownAuthorities = auth.getArray("knownAuthorities");
             // List WILL be instantiated and empty if `knownAuthorities` is null
             List<String> authoritiesList = readableArrayToStringList(knownAuthorities);
-
             // Make sure the `authority` makes it in the authority list
             if (!authoritiesList.contains(authority)) {
                 authoritiesList.add(authority);
             }
-
             // The authoritiesList is just a list of urls (strings), but the native android MSAL
             // library expects an array of objects, so we have to parse the urls
             JSONArray authoritiesJsonArr = makeAuthoritiesJsonArray(authoritiesList, authority);
-
-            // Now that everything is ready, make our JSON config object
-            JSONObject msalConfigJsonObj = new JSONObject()
-                    .put("account_mode", "MULTIPLE")
-                    .put("broker_redirect_uri_registered", false)
-                    .put("client_id", clientId)
-                    .put("redirect_uri", redirectUri)
-                    .put("authorities", authoritiesJsonArr);
+            msalConfigJsonObj.put("authorities", authoritiesJsonArr);
 
             // Serialize the JSON config to a string
             String serializedMsalConfig = msalConfigJsonObj.toString();
@@ -409,6 +406,29 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
+    @NonNull
+    private String getStringOrDefault(@Nullable ReadableMap map, @NonNull String key, @NonNull String defaultValue) {
+        try {
+            return getStringOrThrow(map, key);
+        } catch (Exception ex) {
+            return defaultValue;
+        }
+    }
+
+    @NonNull String getStringOrThrow(@Nullable ReadableMap map, @NonNull String key) {
+        if (map == null) {
+            throw new IllegalArgumentException("Map is null");
+        }
+
+        String value = map.getString(key);
+        if (value == null) {
+            throw new NoSuchElementException(key + " doesn't exist on map or is null");
+        }
+
+        return value;
+    }
+
+    @NonNull
     private List<String> readableArrayToStringList(@Nullable ReadableArray readableArray) {
         List<String> list = new ArrayList<>();
         if (readableArray != null) {
@@ -419,6 +439,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return list;
     }
 
+    @NonNull
     private WritableMap toWritableMap(@NonNull Map<String, ?> map) {
         WritableMap writableMap = Arguments.createMap();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
@@ -443,6 +464,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return writableMap;
     }
 
+    @NonNull
     private WritableArray toWritableArray(@NonNull List<?> list) {
         WritableArray writableArray = Arguments.createArray();
         for (Object value : list.toArray()) {

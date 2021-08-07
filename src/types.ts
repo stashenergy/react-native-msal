@@ -70,6 +70,13 @@ export interface MSALConfiguration {
    * @platform web
    */
   cache?: Configuration['cache'] & { cacheLocation?: 'localStorage' | 'sessionStorage' };
+  /**
+   * @platform android
+   */
+  androidOptions?: {
+    brokerRedirectUriRegistered?: boolean;
+    authorizationUserAgent?: 'DEFAULT' | 'BROWSER' | 'WEBVIEW';
+  };
 }
 
 export interface MSALInteractiveParams {
