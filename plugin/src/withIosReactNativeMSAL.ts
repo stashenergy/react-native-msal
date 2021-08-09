@@ -2,7 +2,7 @@ import { ConfigPlugin, withInfoPlist, withEntitlementsPlist, withPlugins, withAp
 
 const withIosUrlScheme: ConfigPlugin = (config) => {
   const QUERY_SCHEMES = ['msauthv2', 'msauthv3'];
-  const URL_SCHEME = { CFBundleURLSchemes: [`msauth.${config.ios?.bundleIdentifier}`] };
+  const URL_SCHEME = { CFBundleURLSchemes: ['msauth.$(PRODUCT_BUNDLE_IDENTIFIER)'] };
 
   return withInfoPlist(config, (mod) => {
     mod.modResults.CFBundleURLTypes = [...(mod.modResults.CFBundleURLTypes || []), URL_SCHEME];

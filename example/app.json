@@ -8,7 +8,7 @@
     "sdkVersion": "42.0.0",
     "version": "1.0.0",
     "platforms": ["ios", "android", "web"],
-    "plugins": [["../app.plugin.js", { "signatureHash": "Xo8WBi6jzSxKDVR4drqm84yr9iU=" }]],
+    "plugins": [["../app.plugin.js", { "android": { "packageSignatureHash": "Xo8WBi6jzSxKDVR4drqm84yr9iU=" } }]],
     "android": {
       "package": "com.example"
     },

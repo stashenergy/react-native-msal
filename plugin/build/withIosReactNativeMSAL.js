@@ -3,9 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.withIosReactNativeMSAL = void 0;
 const config_plugins_1 = require("@expo/config-plugins");
 const withIosUrlScheme = (config) => {
-    var _a;
     const QUERY_SCHEMES = ['msauthv2', 'msauthv3'];
-    const URL_SCHEME = { CFBundleURLSchemes: [`msauth.${(_a = config.ios) === null || _a === void 0 ? void 0 : _a.bundleIdentifier}`] };
+    const URL_SCHEME = { CFBundleURLSchemes: ['msauth.$(PRODUCT_BUNDLE_IDENTIFIER)'] };
     return config_plugins_1.withInfoPlist(config, (mod) => {
         var _a;
         mod.modResults.CFBundleURLTypes = [...(mod.modResults.CFBundleURLTypes || []), URL_SCHEME];

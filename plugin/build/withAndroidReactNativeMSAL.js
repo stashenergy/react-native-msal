@@ -60,7 +60,7 @@ function setGradleMaven(buildGradle) {
     }
     return buildGradle + `\n${gradleMaven}\n`;
 }
-const withAndroidReactNativeMSAL = (config, { signatureHash }) => {
-    return config_plugins_1.withPlugins(config, [[withAndroidActivity, signatureHash], withAndroidMSALGradle]);
+const withAndroidReactNativeMSAL = (config, { packageSignatureHash }) => {
+    return config_plugins_1.withPlugins(config, [[withAndroidActivity, packageSignatureHash], withAndroidMSALGradle]);
 };
 exports.withAndroidReactNativeMSAL = withAndroidReactNativeMSAL;
