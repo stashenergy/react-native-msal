@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
-import {
-  createPublicClientApplication,
+import PublicClientApplication from 'react-native-msal';
+import type {
   MSALInteractiveParams,
   MSALResult,
   MSALSilentParams,
@@ -8,7 +8,6 @@ import {
   MSALSignoutParams,
   MSALWebviewParams,
   MSALConfiguration,
-  IPublicClientApplication,
 } from 'react-native-msal';
 
 export interface B2CPolicies {
@@ -28,40 +27,34 @@ export type B2CSignInParams = Omit<MSALInteractiveParams, 'authority'>;
 export type B2CSilentParams = Pick<MSALSilentParams, 'scopes' | 'forceRefresh'>;
 export type B2CSignOutParams = Pick<MSALSignoutParams, 'signoutFromBrowser' | 'webviewParameters'>;
 
-export async function createB2CClient(config: B2CConfiguration) {
-  return await new B2CClient(config).init();
-}
-
 export class B2CClient {
   private static readonly B2C_PASSWORD_CHANGE = 'AADB2C90118';
   private static readonly B2C_EXPIRED_GRANT = 'AADB2C90080';
   private readonly policyUrls: B2CPolicies;
-  private pca: IPublicClientApplication;
-  private config: MSALConfiguration;
+  private pca: PublicClientApplication;
 
   /** Construct a B2CClient object
-   * @param config The configuration object for the B2CClient
+   * @param b2cConfig The configuration object for the B2CClient
    */
   constructor(b2cConfig: B2CConfiguration) {
-    // Set the sign in sign up policy as the default authority for the PublicClientApplication (PCA).
     const { authorityBase, policies, ...restOfAuthConfig } = b2cConfig.auth;
     this.policyUrls = makePolicyUrls(authorityBase, policies);
-    const { signInSignUp, ...otherPolicies } = this.policyUrls;
-    const authority = signInSignUp;
+
+    // Set the sign in sign up policy as the default authority for the PublicClientApplication (PCA).
+    const authority = this.policyUrls.signInSignUp;
 
     // We need to provide all authorities we'll be using up front.
-    // The default authority (`authority`) should be included in this list.
-    // If it's not, the first authority in the array is set as the default.
-    const knownAuthorities = [authority, ...Object.values(otherPolicies)];
+    // The default authority should be included in this list.
+    const knownAuthorities = Object.values(this.policyUrls);
 
-    this.config = {
+    this.pca = new PublicClientApplication({
       ...b2cConfig,
       auth: { authority, knownAuthorities, ...restOfAuthConfig },
-    };
+    });
   }
 
   public async init() {
-    this.pca = await createPublicClientApplication(this.config);
+    await this.pca.init();
     return this;
   }
 
@@ -160,7 +153,7 @@ function makeAuthority(authorityBase: string, policyName: string) {
 
 function makePolicyUrls(authorityBase, policyNames: B2CPolicies): B2CPolicies {
   return Object.entries(policyNames).reduce(
-    (prev, curr) => ({ ...prev, [curr[0]]: makeAuthority(authorityBase, curr[1]) }),
+    (prev, [key, policyName]) => ({ ...prev, [key]: makeAuthority(authorityBase, policyName) }),
     {} as B2CPolicies
   );
 }

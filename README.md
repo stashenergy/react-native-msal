@@ -44,7 +44,8 @@ Don't forget to run `npx pod-install` after!
 ## Use
 
 ```typescript
-import { createPublicClientApplication, MSALConfiguration } from 'react-native-msal';
+import PublicClientApplication from 'react-native-msal';
+import type { MSALConfiguration /*, etc */ } from 'react-native-msal';
 
 const config: MSALConfiguration = {
   auth: {
@@ -57,25 +58,25 @@ const config: MSALConfiguration = {
 const scopes = ['scope1', 'scope2'];
 
 // Initialize the public client application:
-let pca: IPublicClientApplication | undefined;
+const pca = new PublicClientApplication(config);
 try {
-  pca = await createPublicClientApplication(config);
+  await pca.init();
 } catch (error) {
-  console.error('Error creating the pca: ', error);
+  console.error('Error initializing the pca, check your config.', error);
 }
 
 // Acquiring a token for the first time, you must call pca.acquireToken
 const params: MSALInteractiveParams = { scopes };
-let result: MSALResult | undefined = await pca.acquireToken(params);
+const result: MSALResult | undefined = await pca.acquireToken(params);
 
 // On subsequent token acquisitions, you can call `pca.acquireTokenSilent`
 // Force the token to refresh with the `forceRefresh` option
-const silentParams: MSALSilentParams = {
-  account: result.account, // or get this by filtering the result from `pca.getAccounts` (see below)
+const params: MSALSilentParams = {
+  account: result!.account, // or get this by filtering the result from `pca.getAccounts` (see below)
   scopes,
   forceRefresh: true,
 };
-result = await pca.acquireTokenSilent(silentParams);
+const result: MSALResult | undefined = await pca.acquireTokenSilent(params);
 
 // Get all accounts for which this application has refresh tokens
 const accounts: MSALAccount[] = await pca.getAccounts();
@@ -84,14 +85,14 @@ const accounts: MSALAccount[] = await pca.getAccounts();
 const account: MSALAccount | undefined = await pca.getAccount(result!.account.identifier);
 
 // Remove all tokens from the cache for this application for the provided account
-let success: boolean = await pca.removeAccount(result!.account);
+const success: boolean = await pca.removeAccount(result!.account);
 
 // Same as `pca.removeAccount` with the exception that, if called on iOS with the `signoutFromBrowser` option set to true, it will additionally remove the account from the system browser
-const signOutParams: MSALSignoutParams = {
+const params: MSALSignoutParams = {
   account: result!.account,
   signoutFromBrowser: true,
 };
-success = await pca.signOut(signOutParams);
+const success: boolean = await pca.signOut(params);
 ```
 
 ### B2C Applications
