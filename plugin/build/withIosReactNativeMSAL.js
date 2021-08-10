@@ -38,16 +38,16 @@ function setAppDelegate(appDelegate) {
         const [firstLine, ...restOfLines] = appDelegate.split('\n');
         appDelegate = firstLine + '\n\n#import <MSAL/MSAL.h>\n' + restOfLines.join('\n');
     }
-    const linkingMethod = `- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    return [MSALPublicClientApplication handleMSALResponse:url sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]] || [RCTLinkingManager application:application openURL:url options:options];
-}`;
-    const linkingMethodRegex = /- \(BOOL\)application:\(UIApplication \*\)application\s+openURL:\(NSURL \*\)url\s+options:\(NSDictionary<UIApplicationOpenURLOptionsKey,id> \*\)options\s*{.+?}/s;
-    if (linkingMethodRegex.test(appDelegate)) {
-        appDelegate = appDelegate.replace(linkingMethodRegex, linkingMethod);
+    const msalHandleResponseMethod = '[MSALPublicClientApplication handleMSALResponse:url sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]]';
+    if (appDelegate.includes(msalHandleResponseMethod)) {
+        return appDelegate;
     }
-    else {
-        appDelegate = appDelegate.replace('@implementation AppDelegate', `@implementation AppDelegate\n\n${linkingMethod}`);
-    }
+    const linkingMethodReturn = 'return [RCTLinkingManager application:application openURL:url options:options];';
+    const newReturn = `if ([MSALPublicClientApplication handleMSALResponse:url sourceApplication:options[UIApplicationOpenURLOptionsSourceApplicationKey]]) {
+    return true;
+  }
+  ${linkingMethodReturn}`;
+    appDelegate = appDelegate.replace(linkingMethodReturn, newReturn);
     return appDelegate;
 }
 const withIosReactNativeMSAL = (config) => {
