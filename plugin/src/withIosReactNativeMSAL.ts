@@ -1,11 +1,15 @@
 import { ConfigPlugin, withInfoPlist, withEntitlementsPlist, withPlugins, withAppDelegate } from '@expo/config-plugins';
 
 const withIosUrlScheme: ConfigPlugin = (config) => {
+  if (!config.ios?.bundleIdentifier) {
+    throw new Error('ios.bundleIdentifier is required in your expo config');
+  }
+
   const QUERY_SCHEMES = ['msauthv2', 'msauthv3'];
-  const URL_SCHEME = { CFBundleURLSchemes: ['msauth.$(PRODUCT_BUNDLE_IDENTIFIER)'] };
+  const URL_SCHEME = { CFBundleURLSchemes: [`msauth.${config.ios.bundleIdentifier}`] };
 
   return withInfoPlist(config, (mod) => {
-    mod.modResults.CFBundleURLTypes = [...(mod.modResults.CFBundleURLTypes || []), URL_SCHEME];
+    mod.modResults.CFBundleURLTypes = [URL_SCHEME, ...(mod.modResults.CFBundleURLTypes || [])];
     mod.modResults.LSApplicationQueriesSchemes = [
       ...new Set((mod.modResults.LSApplicationQueriesSchemes ?? []).concat(QUERY_SCHEMES)),
     ];
