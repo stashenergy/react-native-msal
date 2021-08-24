@@ -5,6 +5,7 @@
 import React from 'react';
 import { Platform, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View, TouchableOpacity } from 'react-native';
 import type { MSALResult, MSALWebviewParams } from 'react-native-msal';
+
 import { B2CClient } from './b2cClient';
 import { b2cConfig, b2cScopes as scopes } from './msalConfig';
 

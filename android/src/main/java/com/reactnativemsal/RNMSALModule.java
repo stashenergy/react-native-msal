@@ -41,9 +41,11 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.reactnativemsal.ReadableMapUtils.getStringOrDefault;
+import static com.reactnativemsal.ReadableMapUtils.getStringOrThrow;
 
 public class RNMSALModule extends ReactContextBaseJavaModule {
     private static final String AUTHORITY_TYPE_B2C = "B2C";
@@ -71,20 +73,19 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             // We have to make a json file containing the MSAL configuration, then use that file to
             // create the PublicClientApplication
             // We first need to create the JSON model using the passed in parameters
-            JSONObject msalConfigJsonObj = new JSONObject().put("account_mode", "MULTIPLE");
+
+            JSONObject msalConfigJsonObj = params.hasKey("androidConfigOptions")
+                    ? ReadableMapUtils.toJsonObject(params.getMap("androidConfigOptions"))
+                    : new JSONObject();
+
+            // Account mode. Required to be MULTIPLE for this library
+            msalConfigJsonObj.put("account_mode", "MULTIPLE");
 
             ReadableMap auth = params.getMap("auth");
-            ReadableMap androidOptions = params.getMap("androidOptions");
 
             // Authority
             String authority = getStringOrDefault(auth, "authority", "https://login.microsoftonline.com/common");
             msalConfigJsonObj.put("authority", authority);
-
-            // Authorization User Agent. Valid values: "DEFAULT", "BROWSER" "WEBVIEW"
-            msalConfigJsonObj.put("authorization_user_agent", getStringOrDefault(androidOptions, "authorizationUserAgent", "DEFAULT"));
-
-            // Broker redirect uri registered (boolean). Defaults to false
-            msalConfigJsonObj.put("broker_redirect_uri_registered", androidOptions != null && androidOptions.getBoolean("brokerRedirectUriRegistered"));
 
             // Client id
             msalConfigJsonObj.put("client_id", getStringOrThrow(auth, "clientId"));
@@ -406,27 +407,6 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
-    @NonNull
-    private String getStringOrDefault(@Nullable ReadableMap map, @NonNull String key, @NonNull String defaultValue) {
-        try {
-            return getStringOrThrow(map, key);
-        } catch (Exception ex) {
-            return defaultValue;
-        }
-    }
-
-    @NonNull String getStringOrThrow(@Nullable ReadableMap map, @NonNull String key) {
-        if (map == null) {
-            throw new IllegalArgumentException("Map is null");
-        }
-
-        String value = map.getString(key);
-        if (value == null) {
-            throw new NoSuchElementException(key + " doesn't exist on map or is null");
-        }
-
-        return value;
-    }
 
     @NonNull
     private List<String> readableArrayToStringList(@Nullable ReadableArray readableArray) {

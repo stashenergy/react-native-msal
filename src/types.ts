@@ -69,10 +69,27 @@ export interface MSALConfiguration {
   /**
    * @platform android
    */
-  androidOptions?: {
-    brokerRedirectUriRegistered?: boolean;
-    authorizationUserAgent?: 'DEFAULT' | 'BROWSER' | 'WEBVIEW';
+  androidConfigOptions?: MSALAndroidConfigOptions;
+}
+
+export interface MSALAndroidConfigOptions {
+  authorization_user_agent?: 'DEFAULT' | 'BROWSER' | 'WEBVIEW';
+  broker_redirect_uri_registered?: boolean;
+  browser_safelist?: {
+    browser_package_name: string;
+    browser_signature_hashes: string[];
+    browser_use_customTab: boolean;
+  }[];
+  http?: {
+    connect_timeout?: number;
+    read_timeout?: number;
   };
+  logging?: {
+    pii_enabled?: boolean;
+    log_level?: 'ERROR' | 'WARNING' | 'INFO' | 'VERBOSE';
+    logcat_enabled?: boolean;
+  };
+  multiple_clouds_supported?: boolean;
 }
 
 export interface MSALInteractiveParams {
