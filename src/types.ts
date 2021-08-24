@@ -67,6 +67,7 @@ export interface MSALConfiguration {
    */
   cache?: Configuration['cache'] & { cacheLocation?: 'localStorage' | 'sessionStorage' };
   /**
+   * Options as described here: {@link https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-configuration}
    * @platform android
    */
   androidConfigOptions?: MSALAndroidConfigOptions;

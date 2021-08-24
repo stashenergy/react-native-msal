@@ -37,9 +37,13 @@ Don't forget to run `npx pod-install` after!
 
 ## Setup
 
-1. Register your application in the Azure Portal
-2. Follow the [Android Setup](/docs/android_setup.md) steps
-3. Follow the [iOS Setup](/docs/ios_setup.md) steps
+### Expo
+
+Follow the [Expo setup guide](/docs/expo_setup.md)
+
+### Non-expo
+
+Follow the [Android setup guide](/docs/android_setup.md) and the [iOS setup guide](/docs/ios_setup.md)
 
 ## Use
 
