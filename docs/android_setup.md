@@ -23,6 +23,17 @@
    });
    ```
 
+1. Add the following maven repository to your project's `build.gradle`:
+   ```gradle
+   allProjects {
+      repositories {
+         // ...
+         maven {
+         url "https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1"
+         }
+      }
+   }
+   ```
 1. Add the BrowserTabActivity activity with an intent-filter using your redirect URI to your `AndroidManifest.xml` file, as described in Step 2 [here](https://github.com/AzureAD/microsoft-authentication-library-for-android#step-3-configure-the-androidmanifestxml).
    **Note**: The `android:path` attribute value should start with a forward slash (`/`) and the Signature Hash should **NOT** be URL encoded.
 
