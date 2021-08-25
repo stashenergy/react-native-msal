@@ -10,16 +10,17 @@
    1. Click "Configure".
    1. Based on the JSON configuration presented to you in the portal, in your app code you can make an MSALConfiguration object which is passed into the `PublicClientApplication` constructor. To determine authority urls from the JSON `authorities` property, and for more information about the JSON, please see [here](https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-configuration#map-aad-authority--audience-to-microsoft-identity-platform-endpoints).
 
-   **NOTE:** Make sure when creating a new instance of the `PublicClientApplication` that you pass a redirect uri that contains the (url encoded) signature hash
+   **NOTE:** Make sure when creating a new instance of the `PublicClientApplication` that you pass a redirect uri that contains the (url encoded) signature hash:
 
    ```js
    const pca = new PublicClientApplication({
-      auth: { ...
-         redirectUri: Platform.select({
-               android: 'msauth://<package name>/<base64 url encoded package signature hash>', // ex: "msauth://com.package/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D"
-               default: undefined
-         }),
-      }
+     auth: {
+       //...
+       redirectUri: Platform.select({
+         android: 'msauth://<package name>/<base64 url encoded package signature hash>', // ex: "msauth://com.package/Xo8WBi6jzSxKDVR4drqm84yr9iU%3D"
+         default: undefined,
+       }),
+     },
    });
    ```
 
