@@ -229,7 +229,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         WritableMap map = Arguments.createMap();
         map.putString("accessToken", result.getAccessToken());
         map.putString("expiresOn", String.format("%s", result.getExpiresOn().getTime() / 1000));
-        map.putString("idToken", result.getAccount().getIdToken());
+        String idToken = result.getAccount().getIdToken();
+        if (idToken==null){
+          idToken = ((IMultiTenantAccount) result.getAccount()).getTenantProfiles().get(result.getTenantId()).getIdToken();
+        }
+        map.putString("idToken", idToken);
         map.putArray("scopes", Arguments.fromArray(result.getScope()));
         map.putString("tenantId", result.getTenantId());
         map.putMap("account", accountToMap(result.getAccount()));
