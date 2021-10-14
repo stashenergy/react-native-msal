@@ -6,7 +6,7 @@
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 <p align="center">
-  <img src="_assets/ReactNativeMSALLogo.png" width="300">
+  <img src="_assets/ReactNativeMSALLogo.webp" width="300">
 </p>
 
 ## Live Demo (Web)
@@ -27,10 +27,10 @@
 
 **Requires React Native >=0.61**
 
-Stable version:  
+Stable version:
 `$ yarn add react-native-msal`
 
-Beta version:  
+Beta version:
 `$ yarn add react-native-msal@beta`
 
 Don't forget to run `npx pod-install` after!
@@ -113,8 +113,8 @@ As mentioned above, the example app demonstrates a B2C implementation
 
 To run the example locally, first clone the repo and run `$ yarn` to bootstrap the project. Then run the following for the desired platform:
 
-iOS: `$ yarn example ios`  
-Android: `$ yarn example android`  
+iOS: `$ yarn example ios`
+Android: `$ yarn example android`
 Web: `$ yarn example web` (the example app is also running live [here](https://stashenergy.github.io/react-native-msal/))
 
 If you want to run the example using your own Azure application information:
