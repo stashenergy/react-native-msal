@@ -21,7 +21,7 @@
   - [PublicClientApplication class](#publicClientApplication-class)
   - [B2C Applications](#b2c-applications)
 - [Example app](#example-app)
-- [Migrating from v2 to v3](#migrating-from-v2-to-v3)
+- [Migrating between major versions](#migrating-between-major-versions)
 
 ## Install
 
@@ -127,4 +127,4 @@ If you want to run the example using your own Azure application information:
 
 ## Migrating between major versions
 
-See breaking changes in [CHANGELOG.md](CHANGELOG.md).
+See migration instructions in the [CHANGELOG](CHANGELOG.md).
