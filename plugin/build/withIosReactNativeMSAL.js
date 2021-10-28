@@ -9,7 +9,7 @@ const withIosUrlScheme = (config) => {
     }
     const QUERY_SCHEMES = ['msauthv2', 'msauthv3'];
     const URL_SCHEME = { CFBundleURLSchemes: [`msauth.${config.ios.bundleIdentifier}`] };
-    return config_plugins_1.withInfoPlist(config, (mod) => {
+    return (0, config_plugins_1.withInfoPlist)(config, (mod) => {
         var _a;
         mod.modResults.CFBundleURLTypes = [URL_SCHEME, ...(mod.modResults.CFBundleURLTypes || [])];
         mod.modResults.LSApplicationQueriesSchemes = [
@@ -20,14 +20,14 @@ const withIosUrlScheme = (config) => {
 };
 const withIosKeychainGroup = (config) => {
     const KEYCHAIN_GROUP = '$(AppIdentifierPrefix)com.microsoft.adalcache';
-    return config_plugins_1.withEntitlementsPlist(config, (mod) => {
+    return (0, config_plugins_1.withEntitlementsPlist)(config, (mod) => {
         const existingAccessGroups = (mod.modResults['keychain-access-groups'] || []);
         mod.modResults['keychain-access-groups'] = [...new Set(existingAccessGroups.concat(KEYCHAIN_GROUP))];
         return mod;
     });
 };
 const withAppDelegateConfig = (config) => {
-    return config_plugins_1.withAppDelegate(config, (mod) => {
+    return (0, config_plugins_1.withAppDelegate)(config, (mod) => {
         if (mod.modResults.language === 'objc') {
             mod.modResults.contents = setAppDelegate(mod.modResults.contents);
         }
@@ -55,6 +55,6 @@ function setAppDelegate(appDelegate) {
     return appDelegate;
 }
 const withIosReactNativeMSAL = (config) => {
-    return config_plugins_1.withPlugins(config, [withIosUrlScheme, withIosKeychainGroup, withAppDelegateConfig]);
+    return (0, config_plugins_1.withPlugins)(config, [withIosUrlScheme, withIosKeychainGroup, withAppDelegateConfig]);
 };
 exports.withIosReactNativeMSAL = withIosReactNativeMSAL;

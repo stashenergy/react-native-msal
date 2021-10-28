@@ -41,18 +41,18 @@
   "homepage": "https://github.com/stashenergy/react-native-msal#readme",
   "dependencies": {
     "@azure/msal-browser": "^2.1.0",
-    "@expo/config-plugins": "^3.0.0"
+    "@expo/config-plugins": "^4.0.6"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.1",
-    "@commitlint/config-conventional": "^12.1.1",
+    "@commitlint/cli": "^13.2.1",
+    "@commitlint/config-conventional": "^13.2.0",
     "@react-native-community/eslint-config": "^3.0.0",
-    "@types/jest": "^26.0.23",
+    "@types/jest": "^27.0.2",
     "@types/react": "^17.0.5",
-    "@types/react-native": "^0.64.5",
+    "@types/react-native": "^0.66.1",
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "expo-module-scripts": "^2.0.0",
     "gh-pages": "^3.1.0",
     "husky": "^7.0.0",
@@ -61,8 +61,7 @@
     "prettier": "^2.3.0",
     "react": "^17.0.2",
     "react-native": "^0.64.1",
-    "react-native-builder-bob": "^0.18.1",
-    "semantic-release": "^17.4.2",
+    "semantic-release": "^18.0.0",
     "typescript": "^4.2.4"
   },
   "peerDependencies": {

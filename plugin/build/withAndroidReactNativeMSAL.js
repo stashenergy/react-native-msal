@@ -4,7 +4,7 @@ exports.withAndroidReactNativeMSAL = void 0;
 const config_plugins_1 = require("@expo/config-plugins");
 const { getMainApplicationOrThrow } = config_plugins_1.AndroidConfig.Manifest;
 const withAndroidActivity = (config, signatureHash) => {
-    return config_plugins_1.withAndroidManifest(config, (mod) => {
+    return (0, config_plugins_1.withAndroidManifest)(config, (mod) => {
         mod.modResults = setBrowserTabActivity(config, mod.modResults, signatureHash);
         return mod;
     });
@@ -42,7 +42,7 @@ function setBrowserTabActivity(config, androidManifest, signatureHash) {
 // the existing block to find the correct place to insert our dependency.
 const gradleMaven = 'allprojects { repositories { maven { url "https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1" } } }';
 const withAndroidMSALGradle = (config) => {
-    return config_plugins_1.withProjectBuildGradle(config, (mod) => {
+    return (0, config_plugins_1.withProjectBuildGradle)(config, (mod) => {
         if (mod.modResults.language === 'groovy') {
             mod.modResults.contents = setGradleMaven(mod.modResults.contents);
         }
@@ -61,6 +61,6 @@ function setGradleMaven(buildGradle) {
     return buildGradle + `\n${gradleMaven}\n`;
 }
 const withAndroidReactNativeMSAL = (config, androidPackageSignatureHash) => {
-    return config_plugins_1.withPlugins(config, [[withAndroidActivity, androidPackageSignatureHash], withAndroidMSALGradle]);
+    return (0, config_plugins_1.withPlugins)(config, [[withAndroidActivity, androidPackageSignatureHash], withAndroidMSALGradle]);
 };
 exports.withAndroidReactNativeMSAL = withAndroidReactNativeMSAL;
