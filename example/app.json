@@ -3,9 +3,20 @@
   "displayName": "example",
   "expo": {
     "name": "example",
+    "slug": "example",
     "privacy": "unlisted",
-    "sdkVersion": "38.0.0",
+    "sdkVersion": "42.0.0",
     "version": "1.0.0",
-    "platforms": ["ios", "android", "web"]
+    "platforms": ["ios", "android", "web"],
+    "plugins": [["../app.plugin.js", { "androidPackageSignatureHash": "Xo8WBi6jzSxKDVR4drqm84yr9iU=" }]],
+    "android": {
+      "package": "com.example"
+    },
+    "ios": {
+      "bundleIdentifier": "com.example"
+    },
+    "splash": {
+      "backgroundColor": "#000000"
+    }
   }
 }

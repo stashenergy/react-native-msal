@@ -1,4 +1,5 @@
 import { PublicClientApplication as MSALPublicClientApplication } from '@azure/msal-browser';
+
 import type {
   MSALConfiguration,
   MSALInteractiveParams,
@@ -10,47 +11,24 @@ import type {
 } from './types';
 import { MSALPromptType } from './types';
 
-type PromptTypeString = 'consent' | 'login' | 'select_account' | 'none';
+export class PublicClientApplication implements IPublicClientApplication {
+  private _pca: MSALPublicClientApplication;
 
-function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
-  switch (promptType) {
-    case MSALPromptType.SELECT_ACCOUNT:
-      return 'select_account';
-    case MSALPromptType.LOGIN:
-      return 'login';
-    case MSALPromptType.CONSENT:
-      return 'consent';
-    case MSALPromptType.WHEN_REQUIRED:
-      return 'none';
-  }
-}
-
-export default class PublicClientApplication implements IPublicClientApplication {
-  private static readonly notInitializedError = Error('PublicClientApplication instance not initialized.');
-  private _pca?: MSALPublicClientApplication;
-
-  constructor(private readonly config: MSALConfiguration, init = true) {
-    if (init) this.init();
-  }
-
-  public async init() {
+  constructor(private readonly config: MSALConfiguration) {
     this._pca = new MSALPublicClientApplication(this.config);
   }
 
-  /**
-   * Acquire a token interactively
-   * @param {MSALInteractiveParams} params
-   * @return Result containing an access token and account identifier
-   * used for acquiring subsequent tokens silently
-   */
-  public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult> {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
+  public async init() {
+    return this;
+  }
+
+  public async acquireToken(params: MSALInteractiveParams) {
     const { promptType, ...paramsWithoutPromptType } = params;
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenPopup(
         promptType ? { ...paramsWithoutPromptType, prompt: promptTypeToString(promptType) } : paramsWithoutPromptType
       );
-    return {
+    const result: MSALResult = {
       accessToken,
       account: {
         identifier: account!.homeAccountId,
@@ -64,17 +42,10 @@ export default class PublicClientApplication implements IPublicClientApplication
       scopes,
       tenantId,
     };
+    return result;
   }
 
-  /**
-   * Acquire a token silently
-   * @param {MSALSilentParams} params - Includes the account identifer retrieved from a
-   * previous interactive login
-   * @return Result containing an access token and account identifier
-   * used for acquiring subsequent tokens silently
-   */
-  public async acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult> {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
+  public async acquireTokenSilent(params: MSALSilentParams) {
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenSilent({
         ...params,
@@ -85,7 +56,7 @@ export default class PublicClientApplication implements IPublicClientApplication
           localAccountId: '',
         },
       });
-    return {
+    const result: MSALResult = {
       accessToken,
       account: {
         identifier: account?.homeAccountId!,
@@ -99,47 +70,33 @@ export default class PublicClientApplication implements IPublicClientApplication
       scopes,
       tenantId,
     };
+    return result;
   }
 
-  /**
-   * Get all accounts for which this application has refresh tokens
-   * @return Promise containing array of MSALAccount objects for which this application has refresh tokens.
-   */
-  public getAccounts(): Promise<MSALAccount[]> {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
+  public getAccounts() {
     const accounts = this._pca.getAllAccounts();
     return Promise.resolve(
       accounts.map((a) => {
         const { homeAccountId: identifier, environment, tenantId, username } = a;
-        return { identifier, environment, tenantId, username };
+        const account: MSALAccount = { identifier, environment, tenantId, username };
+        return account;
       })
     );
   }
 
-  /** Retrieve the account matching the identifier
-   * @return Promise containing MSALAccount object
-   */
-  public getAccount(accountIdentifier: string): Promise<MSALAccount> {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
+  public getAccount(accountIdentifier: string) {
     const account = this._pca.getAccountByHomeId(accountIdentifier);
     if (account == null) {
-      return Promise.reject('Account not found');
+      return Promise.reject(Error('Account not found'));
     } else {
       const { homeAccountId: identifier, environment, tenantId, username } = account;
-      return Promise.resolve({ identifier, environment, tenantId, username });
+      const msalAccount: MSALAccount = { identifier, environment, tenantId, username };
+      return Promise.resolve(msalAccount);
     }
   }
 
-  /**
-   * Removes all tokens from the cache for this application for the provided
-   * account.
-   * @param {MSALAccount} account
-   * @return A promise containing a boolean = true if account removal was successful
-   * otherwise rejects
-   */
-  public async removeAccount(account: MSALAccount): Promise<boolean> {
-    if (!this._pca) throw PublicClientApplication.notInitializedError;
-    await this._pca.logout({
+  public async removeAccount(account: MSALAccount) {
+    await this._pca.logoutRedirect({
       account: {
         ...account,
         homeAccountId: account.identifier,
@@ -150,14 +107,21 @@ export default class PublicClientApplication implements IPublicClientApplication
     return true;
   }
 
-  /**
-   * Removes all tokens from the cache for this application for the provided
-   * account.
-   * @param {MSALSignoutParams} params
-   * @return A promise which resolves if sign out is successful,
-   * otherwise rejects
-   */
-  public signOut(params: MSALSignoutParams): Promise<boolean> {
-    return this.removeAccount(params.account);
+  public async signOut(params: MSALSignoutParams) {
+    return await this.removeAccount(params.account);
+  }
+}
+
+type PromptTypeString = 'consent' | 'login' | 'select_account' | 'none';
+function promptTypeToString(promptType: MSALPromptType): PromptTypeString {
+  switch (promptType) {
+    case MSALPromptType.SELECT_ACCOUNT:
+      return 'select_account';
+    case MSALPromptType.LOGIN:
+      return 'login';
+    case MSALPromptType.CONSENT:
+      return 'consent';
+    case MSALPromptType.WHEN_REQUIRED:
+      return 'none';
   }
 }

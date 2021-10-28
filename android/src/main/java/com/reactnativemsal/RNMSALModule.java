@@ -1,8 +1,15 @@
 package com.reactnativemsal;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.net.Uri;
+import android.util.Base64;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Promise;
@@ -24,13 +31,29 @@ import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.SilentAuthenticationCallback;
 import com.microsoft.identity.client.exception.MsalException;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileWriter;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.reactnativemsal.ReadableMapUtils.getStringOrDefault;
+import static com.reactnativemsal.ReadableMapUtils.getStringOrThrow;
 
 public class RNMSALModule extends ReactContextBaseJavaModule {
+    private static final String AUTHORITY_TYPE_B2C = "B2C";
+    private static final String AUTHORITY_TYPE_AAD = "AAD";
+
+    private static final Pattern aadMyOrgAuthorityPattern = Pattern.compile("https://login.microsoftonline.com/(?<tenant>.+)");
+    private static final Pattern b2cAuthorityPattern = Pattern.compile("https://.+?/tfp/(?<tenant>.+?)/.+");
+
     private IMultipleAccountPublicClientApplication publicClientApplication;
 
     public RNMSALModule(ReactApplicationContext reactContext) {
@@ -47,16 +70,144 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     public void createPublicClientApplication(ReadableMap params, Promise promise) {
         ReactApplicationContext context = getReactApplicationContext();
         try {
-            InputStream inputStream = context.getAssets().open("msal_config.json");
+            // We have to make a json file containing the MSAL configuration, then use that file to
+            // create the PublicClientApplication
+            // We first need to create the JSON model using the passed in parameters
+
+            JSONObject msalConfigJsonObj = params.hasKey("androidConfigOptions")
+                    ? ReadableMapUtils.toJsonObject(params.getMap("androidConfigOptions"))
+                    : new JSONObject();
+
+            // Account mode. Required to be MULTIPLE for this library
+            msalConfigJsonObj.put("account_mode", "MULTIPLE");
+
+            // If broker_redirect_uri_registered is not provided in androidConfigOptions,
+            // default it to false
+            if (!msalConfigJsonObj.has("broker_redirect_uri_registered")) {
+                msalConfigJsonObj.put("broker_redirect_uri_registered", false);
+            }
+
+            ReadableMap auth = params.getMap("auth");
+
+            // Authority
+            String authority = getStringOrDefault(auth, "authority", "https://login.microsoftonline.com/common");
+            msalConfigJsonObj.put("authority", authority);
+
+            // Client id
+            msalConfigJsonObj.put("client_id", getStringOrThrow(auth, "clientId"));
+
+            // Redirect URI
+            msalConfigJsonObj.put("redirect_uri", auth.hasKey("redirectUri") ? auth.getString("redirectUri") : makeRedirectUri(context).toString());
+
+            // Authorities
+            ReadableArray knownAuthorities = auth.getArray("knownAuthorities");
+            // List WILL be instantiated and empty if `knownAuthorities` is null
+            List<String> authoritiesList = readableArrayToStringList(knownAuthorities);
+            // Make sure the `authority` makes it in the authority list
+            if (!authoritiesList.contains(authority)) {
+                authoritiesList.add(authority);
+            }
+            // The authoritiesList is just a list of urls (strings), but the native android MSAL
+            // library expects an array of objects, so we have to parse the urls
+            JSONArray authoritiesJsonArr = makeAuthoritiesJsonArray(authoritiesList, authority);
+            msalConfigJsonObj.put("authorities", authoritiesJsonArr);
+
+            // Serialize the JSON config to a string
+            String serializedMsalConfig = msalConfigJsonObj.toString();
+            Log.d("RNMSALModule", serializedMsalConfig);
+
+            // Create a temporary file and write the serialized config to it
             File file = File.createTempFile("RNMSAL_msal_config", ".tmp");
             file.deleteOnExit();
-            FileUtils.copyInputStreamToFile(inputStream, file);
+            FileWriter writer = new FileWriter(file);
+            writer.write(serializedMsalConfig);
+            writer.close();
+
+            // Finally, create the PCA with the temporary config file we created
             publicClientApplication =
                     PublicClientApplication.createMultipleAccountPublicClientApplication(
                             context, file);
             promise.resolve(null);
         } catch (Exception e) {
             promise.reject(e);
+        }
+    }
+
+    private JSONArray makeAuthoritiesJsonArray(List<String> authorityUrls, String authority) throws JSONException {
+        JSONArray authoritiesJsonArr = new JSONArray();
+        boolean foundDefaultAuthority = false;
+
+        for (String authorityUrl : authorityUrls) {
+            JSONObject authorityJsonObj = new JSONObject();
+
+            // Authority is set as the default if one is not set yet, and it matches `authority`
+            if (!foundDefaultAuthority && authorityUrl.equals(authority)) {
+                authorityJsonObj.put("default", true);
+                foundDefaultAuthority = true;
+            }
+
+            // Parse this information from the authority url. Some variables will end up staying null
+            String type = null, audience_type = null, audience_tenantId = null, b2cAuthorityUrl = null;
+
+            Matcher b2cAuthorityMatcher = b2cAuthorityPattern.matcher(authorityUrl);
+            Matcher aadMyOrgAuthorityMatcher = aadMyOrgAuthorityPattern.matcher(authorityUrl);
+
+            if (authorityUrl.equals("https://login.microsoftonline.com/common")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADandPersonalMicrosoftAccount";
+            } else if (authorityUrl.equals("https://login.microsoftonline.com/organizations")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADMultipleOrgs";
+            } else if (authorityUrl.equals("https://login.microsoftonline.com/consumers")) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "PersonalMicrosoftAccount";
+            } else if (b2cAuthorityMatcher.find()) {
+                type = AUTHORITY_TYPE_B2C;
+                b2cAuthorityUrl = authorityUrl;
+            } else if (aadMyOrgAuthorityMatcher.find()) {
+                type = AUTHORITY_TYPE_AAD;
+                audience_type = "AzureADMyOrg";
+                audience_tenantId = aadMyOrgAuthorityMatcher.group(1);
+            }
+
+            authorityJsonObj
+                    .put("type", type)
+                    .put("authority_url", b2cAuthorityUrl)
+                    .put("audience", audience_type == null ? null : new JSONObject()
+                            .put("type", audience_type)
+                            .put("tenant_id", audience_tenantId)
+                    );
+
+            authoritiesJsonArr.put(authorityJsonObj);
+        }
+
+        // If a default authority was not found, we set the first authority as the default
+        if (!foundDefaultAuthority && authoritiesJsonArr.length() > 0) {
+            authoritiesJsonArr.getJSONObject(0).put("default", true);
+        }
+
+        return authoritiesJsonArr;
+    }
+
+    private Uri makeRedirectUri(ReactApplicationContext context) throws Exception {
+        try {
+            final String packageName = context.getPackageName();
+            final PackageInfo info = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            if (info.signatures.length != 1) {
+                throw new RuntimeException("RNMSAL expected there to be exactly one signature for package " + packageName);
+            }
+            Signature signature = info.signatures[0];
+            final MessageDigest messageDigest = MessageDigest.getInstance("SHA");
+            messageDigest.update(signature.toByteArray());
+            final String signatureHash = Base64.encodeToString(messageDigest.digest(), Base64.NO_WRAP);
+            Log.d("RNMSALModule", signatureHash);
+
+            return new Uri.Builder().scheme("msauth")
+                    .authority(packageName)
+                    .appendPath(signatureHash)
+                    .build();
+        } catch (Exception ex) {
+            throw new Exception("Could not create redirect uri from package name and signature hash", ex);
         }
     }
 
@@ -114,7 +265,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onSuccess(IAuthenticationResult authenticationResult) {
-                promise.resolve(msalResultToDictionary(authenticationResult));
+                if (authenticationResult != null) {
+                    promise.resolve(msalResultToDictionary(authenticationResult));
+                } else {
+                    promise.resolve(null);
+                }
             }
 
             @Override
@@ -166,7 +321,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return new SilentAuthenticationCallback() {
             @Override
             public void onSuccess(IAuthenticationResult authenticationResult) {
-                promise.resolve(msalResultToDictionary(authenticationResult));
+                if (authenticationResult != null) {
+                    promise.resolve(msalResultToDictionary(authenticationResult));
+                } else {
+                    promise.resolve(null);
+                }
             }
 
             @Override
@@ -181,8 +340,10 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         try {
             List<IAccount> accounts = publicClientApplication.getAccounts();
             WritableArray array = Arguments.createArray();
-            for (IAccount account : accounts) {
-                array.pushMap(accountToMap(account));
+            if (accounts != null) {
+                for (IAccount account : accounts) {
+                    array.pushMap(accountToMap(account));
+                }
             }
             promise.resolve(array);
         } catch (Exception e) {
@@ -194,7 +355,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     public void getAccount(String accountIdentifier, Promise promise) {
         try {
             IAccount account = publicClientApplication.getAccount(accountIdentifier);
-            promise.resolve(accountToMap(account));
+            if (account != null) {
+                promise.resolve(accountToMap(account));
+            } else {
+                promise.resolve(null);
+            }
         } catch (Exception e) {
             promise.reject(e);
         }
@@ -225,7 +390,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private WritableMap msalResultToDictionary(IAuthenticationResult result) {
+    private WritableMap msalResultToDictionary(@NonNull IAuthenticationResult result) {
         WritableMap map = Arguments.createMap();
         map.putString("accessToken", result.getAccessToken());
         map.putString("expiresOn", String.format("%s", result.getExpiresOn().getTime() / 1000));
@@ -236,7 +401,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
-    private WritableMap accountToMap(IAccount account) {
+    private WritableMap accountToMap(@NonNull IAccount account) {
         WritableMap map = Arguments.createMap();
         map.putString("identifier", account.getId());
         map.putString("username", account.getUsername());
@@ -248,15 +413,20 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return map;
     }
 
-    private List<String> readableArrayToStringList(ReadableArray readableArray) {
+
+    @NonNull
+    private List<String> readableArrayToStringList(@Nullable ReadableArray readableArray) {
         List<String> list = new ArrayList<>();
-        for (Object item : readableArray.toArrayList()) {
-            list.add(item.toString());
+        if (readableArray != null) {
+            for (Object item : readableArray.toArrayList()) {
+                list.add(item.toString());
+            }
         }
         return list;
     }
 
-    private WritableMap toWritableMap(Map<String, ?> map) {
+    @NonNull
+    private WritableMap toWritableMap(@NonNull Map<String, ?> map) {
         WritableMap writableMap = Arguments.createMap();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             String key = entry.getKey();
@@ -280,7 +450,8 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         return writableMap;
     }
 
-    private WritableArray toWritableArray(List<?> list) {
+    @NonNull
+    private WritableArray toWritableArray(@NonNull List<?> list) {
         WritableArray writableArray = Arguments.createArray();
         for (Object value : list.toArray()) {
             if (value == null) {

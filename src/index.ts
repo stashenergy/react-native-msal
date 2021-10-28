@@ -1,4 +1,3 @@
-import PublicClientApplication from './publicClientApplication';
-
-export * from './types';
+import { PublicClientApplication } from './publicClientApplication';
 export default PublicClientApplication;
+export * from './types';

@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## 4.0.0-beta.6
+
+### Breaking changes
+
+- `acquireToken`, `acquireTokenSilent`, and `getAccount` may return `Promise<undefined>`. This matches what the underlying native libraries return.
+- The Android `msal_config.json` file that was previously required is no longer needed and is ignored. You can safely delete this file. All options are now configurable in the config object which is passed to the `PublicClientApplication` constructor
+- The `PublicClientApplication` constructor no longer takes a second `init` boolean argument, and initialization must be done manually by calling the `init` method:
+  ```diff
+  -const pca = new PublicClientApplication(config, false)
+  +const pca = new PublicClientApplication(config) // No longer initializes client. You must do this manually 👇
+  try {
+    await pca.init();
+  } catch (error) {
+    console.log("problem in configuration/setup:", error)
+  }
+  ```
+- A new maven repository is required to be added to your project `build.gradle` (if you are using Expo this is done automatically for you):
+  ```gradle
+  allProjects {
+    repositories {
+      // ...
+      maven {
+        url "https://pkgs.dev.azure.com/MicrosoftDeviceSDK/DuoSDK-Public/_packaging/Duo-SDK-Feed/maven/v1"
+      }
+    }
+  }
+  ```
+
+### Features
+
+- Now supports Expo apps through a config plugin! To configure, please follow the [Expo setup guide](/docs/expo_setup.md)
+
 ## [3.0.0](https://github.com/stashenergy/react-native-msal/compare/v2.0.3...v3.0.0)
 
 ### Breaking changes

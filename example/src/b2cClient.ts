@@ -1,4 +1,6 @@
-import PublicClientApplication, {
+import { Platform } from 'react-native';
+import PublicClientApplication from 'react-native-msal';
+import type {
   MSALInteractiveParams,
   MSALResult,
   MSALSilentParams,
@@ -7,7 +9,6 @@ import PublicClientApplication, {
   MSALWebviewParams,
   MSALConfiguration,
 } from 'react-native-msal';
-import { Platform } from 'react-native';
 
 export interface B2CPolicies {
   signInSignUp: string;
@@ -23,43 +24,38 @@ export type B2CConfiguration = Omit<MSALConfiguration, 'auth'> & {
   };
 };
 export type B2CSignInParams = Omit<MSALInteractiveParams, 'authority'>;
-export type B2CAcquireTokenSilentParams = Pick<MSALSilentParams, 'forceRefresh' | 'scopes'>;
+export type B2CSilentParams = Pick<MSALSilentParams, 'scopes' | 'forceRefresh'>;
 export type B2CSignOutParams = Pick<MSALSignoutParams, 'signoutFromBrowser' | 'webviewParameters'>;
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export default class B2CClient {
+export class B2CClient {
   private static readonly B2C_PASSWORD_CHANGE = 'AADB2C90118';
   private static readonly B2C_EXPIRED_GRANT = 'AADB2C90080';
+  private readonly policyUrls: B2CPolicies;
   private pca: PublicClientApplication;
 
   /** Construct a B2CClient object
-   * @param clientId The id of the b2c application
-   * @param authorityBase The authority URL, without a policy name.
-   * Has the form: https://TENANT_NAME.b2clogin.com/tfp/TENANT_NAME.onmicrosoft.com/
-   * @param policies An object containing the policies you will be using.
-   * The sign in sign up policy is required, the rest are optional
+   * @param b2cConfig The configuration object for the B2CClient
    */
-  constructor(private readonly config: B2CConfiguration, init = true) {
-    // Set the default authority for the PublicClientApplication (PCA). If we don't provide one,
-    // it will use the default, common authority
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { authorityBase: _, policies, ...restOfAuthConfig } = this.config.auth;
-    const authority = this.getAuthority(policies.signInSignUp);
-    // We need to provide all authorities we'll be using up front
-    const knownAuthorities = Object.values(policies).map((policy) => this.getAuthority(policy));
-    // Instantiate the PCA
-    this.pca = new PublicClientApplication(
-      {
-        ...this.config,
-        auth: { authority, knownAuthorities, ...restOfAuthConfig },
-      },
-      init
-    );
+  constructor(b2cConfig: B2CConfiguration) {
+    const { authorityBase, policies, ...restOfAuthConfig } = b2cConfig.auth;
+    this.policyUrls = makePolicyUrls(authorityBase, policies);
+
+    // Set the sign in sign up policy as the default authority for the PublicClientApplication (PCA).
+    const authority = this.policyUrls.signInSignUp;
+
+    // We need to provide all authorities we'll be using up front.
+    // The default authority should be included in this list.
+    const knownAuthorities = Object.values(this.policyUrls);
+
+    this.pca = new PublicClientApplication({
+      ...b2cConfig,
+      auth: { authority, knownAuthorities, ...restOfAuthConfig },
+    });
   }
 
   public async init() {
     await this.pca.init();
+    return this;
   }
 
   /** Initiates an interactive sign-in. If the user clicks "Forgot Password", and a reset password policy
@@ -76,7 +72,7 @@ export default class B2CClient {
       // (the sign in sign up policy)
       return await this.pca.acquireToken(params);
     } catch (error) {
-      if (error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) && this.config.auth.policies.passwordReset) {
+      if (error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) && this.policyUrls.passwordReset) {
         return await this.resetPassword(params);
       } else {
         throw error;
@@ -85,8 +81,8 @@ export default class B2CClient {
   }
 
   /** Gets a token silently. Will only work if the user is already signed in */
-  public async acquireTokenSilent(params: B2CAcquireTokenSilentParams) {
-    const account = await this.getAccountForPolicy(this.config.auth.policies.signInSignUp);
+  public async acquireTokenSilent(params: B2CSilentParams) {
+    const account = await this.getAccountForPolicy(this.policyUrls.signInSignUp);
     if (account) {
       // We provide the account that we got when we signed in, with the matching sign in sign up authority
       // Which again, we set as the default authority so we don't need to provide it explicitly.
@@ -107,7 +103,7 @@ export default class B2CClient {
 
   /** Returns true if a user is signed in, false if not */
   public async isSignedIn() {
-    const signInAccount = await this.getAccountForPolicy(this.config.auth.policies.signInSignUp);
+    const signInAccount = await this.getAccountForPolicy(this.policyUrls.signInSignUp);
     return signInAccount !== undefined;
   }
 
@@ -127,7 +123,7 @@ export default class B2CClient {
       // is not using an identity provider, so we don't need a logged-in browser session
       ios_prefersEphemeralWebBrowserSession: true,
     };
-    if (this.config.auth.policies.passwordReset) {
+    if (this.policyUrls.passwordReset) {
       // Because there is no prompt before starting an iOS ephemeral session, it will be quick to
       // open and begin before the other one has ended, causing an error saying that only one
       // interactive session is allowed at a time. So we have to slow it down a little
@@ -135,7 +131,7 @@ export default class B2CClient {
         await delay(1000);
       }
       // Use the password reset policy in the interactive `acquireToken` call
-      const authority = this.getAuthority(this.config.auth.policies.passwordReset);
+      const authority = this.policyUrls.passwordReset;
       await this.pca.acquireToken({ ...rest, webviewParameters, authority });
       // Sign in again after resetting the password
       return await this.signIn(params);
@@ -144,12 +140,24 @@ export default class B2CClient {
     }
   }
 
-  private async getAccountForPolicy(policy: string): Promise<MSALAccount | undefined> {
+  private async getAccountForPolicy(policyUrl: string): Promise<MSALAccount | undefined> {
+    const policy = policyUrl.split('/').pop();
     const accounts = await this.pca.getAccounts();
     return accounts.find((account) => account.identifier.includes(policy.toLowerCase()));
   }
+}
 
-  private getAuthority(policy: string) {
-    return `${this.config.auth.authorityBase}/${policy}`;
-  }
+function makeAuthority(authorityBase: string, policyName: string) {
+  return `${authorityBase}/${policyName}`;
+}
+
+function makePolicyUrls(authorityBase, policyNames: B2CPolicies): B2CPolicies {
+  return Object.entries(policyNames).reduce(
+    (prev, [key, policyName]) => ({ ...prev, [key]: makeAuthority(authorityBase, policyName) }),
+    {} as B2CPolicies
+  );
+}
+
+async function delay(ms: number) {
+  return await new Promise<void>((resolve) => setTimeout(resolve, ms));
 }

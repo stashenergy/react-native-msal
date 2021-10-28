@@ -1,5 +1,5 @@
+import { PublicClientApplication } from '../publicClientApplication';
 import type { MSALConfiguration } from '../types';
-import PublicClientApplication from '../publicClientApplication';
 jest.mock('../publicClientApplication');
 
 const testMsalConfig: MSALConfiguration = {

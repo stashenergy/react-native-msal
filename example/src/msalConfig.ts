@@ -8,6 +8,7 @@ export const b2cConfig: B2CConfiguration = {
       signInSignUp: 'B2C_1_SignInUp',
       passwordReset: 'B2C_1_PasswordReset',
     },
+    // redirectUri: Platform.select({ default: undefined }),
   },
   // web only:
   cache: { cacheLocation: 'localStorage' },

@@ -2,27 +2,17 @@
   "name": "react-native-msal",
   "version": "1.0.3",
   "description": "React Native wrapper for iOS and Android",
-  "main": "lib/commonjs/index.js",
-  "module": "lib/module/index.js",
-  "types": "lib/typescript/src/index.d.ts",
-  "react-native": "src/index.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "source": "src/index",
-  "files": [
-    "src",
-    "lib",
-    "!**/__tests__",
-    "!**/__fixtures__",
-    "!**/__mocks__",
-    "android",
-    "ios",
-    "reactnativemsal.podspec",
-    "!lib/typescript/example"
-  ],
   "scripts": {
-    "test": "jest",
-    "typescript": "tsc --noEmit",
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "prepare": "bob build && husky install",
+    "build": "expo-module build",
+    "clean": "expo-module clean",
+    "expo-module": "expo-module",
+    "lint": "expo-module lint",
+    "prepare": "expo-module prepare && husky install",
+    "prepublishOnly": "expo-module prepublishOnly",
+    "test": "expo-module test",
     "example": "yarn --cwd example",
     "pods": "cd example && npx pod-install",
     "bootstrap": "yarn example && yarn && yarn pods",
@@ -32,9 +22,17 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "msal",
+    "azure",
+    "b2c",
+    "aad",
+    "expo"
   ],
-  "repository": "https://github.com/stashenergy/react-native-msal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stashenergy/react-native-msal.git"
+  },
   "author": "Stash Energy <dev@stash.energy> (https://stash.energy)",
   "license": "MIT",
   "bugs": {
@@ -42,7 +40,8 @@
   },
   "homepage": "https://github.com/stashenergy/react-native-msal#readme",
   "dependencies": {
-    "@azure/msal-browser": "^2.1.0"
+    "@azure/msal-browser": "^2.1.0",
+    "@expo/config-plugins": "^3.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.1",
@@ -54,6 +53,7 @@
     "eslint": "^7.26.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "expo-module-scripts": "^2.0.0",
     "gh-pages": "^3.1.0",
     "husky": "^7.0.0",
     "jest": "^27.0.6",
@@ -81,47 +81,11 @@
       "@commitlint/config-conventional"
     ]
   },
-  "eslintConfig": {
-    "extends": [
-      "@react-native-community",
-      "prettier"
-    ],
-    "rules": {
-      "no-shadow": "off",
-      "@typescript-eslint/no-shadow": [
-        "error"
-      ],
-      "prettier/prettier": [
-        "error",
-        {
-          "singleQuote": true,
-          "tabWidth": 2,
-          "trailingComma": "es5",
-          "useTabs": false,
-          "printWidth": 120
-        }
-      ]
-    }
-  },
-  "eslintIgnore": [
-    "node_modules/",
-    "lib/",
-    "example/web-build"
-  ],
   "prettier": {
     "singleQuote": true,
     "tabWidth": 2,
     "trailingComma": "es5",
     "useTabs": false,
     "printWidth": 120
-  },
-  "react-native-builder-bob": {
-    "source": "src",
-    "output": "lib",
-    "targets": [
-      "commonjs",
-      "module",
-      "typescript"
-    ]
   }
 }
