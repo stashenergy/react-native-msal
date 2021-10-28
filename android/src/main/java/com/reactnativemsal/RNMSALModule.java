@@ -81,6 +81,12 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             // Account mode. Required to be MULTIPLE for this library
             msalConfigJsonObj.put("account_mode", "MULTIPLE");
 
+            // If broker_redirect_uri_registered is not provided in androidConfigOptions,
+            // default it to false
+            if (!msalConfigJsonObj.has("broker_redirect_uri_registered")) {
+                msalConfigJsonObj.put("broker_redirect_uri_registered", false);
+            }
+
             ReadableMap auth = params.getMap("auth");
 
             // Authority
