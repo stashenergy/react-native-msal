@@ -25,6 +25,7 @@ import com.microsoft.identity.client.AcquireTokenSilentParameters;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;
 import com.microsoft.identity.client.IAuthenticationResult;
+import com.microsoft.identity.client.IMultiTenantAccount;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.Prompt;
 import com.microsoft.identity.client.PublicClientApplication;
@@ -394,7 +395,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         WritableMap map = Arguments.createMap();
         map.putString("accessToken", result.getAccessToken());
         map.putString("expiresOn", String.format("%s", result.getExpiresOn().getTime() / 1000));
-        map.putString("idToken", result.getAccount().getIdToken());
+        String idToken = result.getAccount().getIdToken();
+        if (idToken==null){
+          idToken = ((IMultiTenantAccount) result.getAccount()).getTenantProfiles().get(result.getTenantId()).getIdToken();
+        }
+        map.putString("idToken", idToken);
         map.putArray("scopes", Arguments.fromArray(result.getScope()));
         map.putString("tenantId", result.getTenantId());
         map.putMap("account", accountToMap(result.getAccount()));
