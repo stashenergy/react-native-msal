@@ -22,7 +22,7 @@ export class PublicClientApplication implements IPublicClientApplication {
     return this;
   }
 
-  public async acquireToken(params: MSALInteractiveParams) {
+  public async acquireToken(params: MSALInteractiveParams): Promise<MSALResult | undefined> {
     const { promptType, ...paramsWithoutPromptType } = params;
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenPopup(
@@ -45,7 +45,7 @@ export class PublicClientApplication implements IPublicClientApplication {
     return result;
   }
 
-  public async acquireTokenSilent(params: MSALSilentParams) {
+  public async acquireTokenSilent(params: MSALSilentParams): Promise<MSALResult | undefined> {
     const { accessToken, account, expiresOn, idToken, idTokenClaims, scopes, tenantId } =
       await this._pca.acquireTokenSilent({
         ...params,
@@ -84,7 +84,7 @@ export class PublicClientApplication implements IPublicClientApplication {
     );
   }
 
-  public getAccount(accountIdentifier: string) {
+  public getAccount(accountIdentifier: string): Promise<MSALAccount | undefined> {
     const account = this._pca.getAccountByHomeId(accountIdentifier);
     if (account == null) {
       return Promise.reject(Error('Account not found'));
