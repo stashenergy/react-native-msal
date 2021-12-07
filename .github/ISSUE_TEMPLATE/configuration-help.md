@@ -7,22 +7,15 @@ assignees: josmithua
 
 ---
 
-**Before you create an issue:**
-
-Have you:
+I have:
 - [ ] Upgraded to the latest version of `react-native-msal`
 - [ ] Read the README thoroughly
-- [ ] Searched for other similar issues
-- [ ] Used breakpoint debugging in the Swift/Java module code?
-- [ ] Tried to reproduce the problem in the example app in this repository?
+- [ ] Searched for similar issues
+- [ ] Used breakpoint debugging in the Swift/Java module code
+- [ ] Tried to reproduce the problem in the example app in this repository
 
 **Problem description:**
-A clear and concise description of what the problem is.
-
-**Contents of `msal_config.json`:**
-```json
-{}
-```
+<!-- A clear and concise description of what the problem is. -->
 
 **Relevant contents of `AndroidManifest.xml`:**
 ```xml
@@ -37,3 +30,9 @@ const res = await pca.acquireToken(...)
 
 **Relevant error messages and screenshots:**
 Please provide error messages and screenshots here
+
+**Environment Information:**
+ - `react-native-msal` version:
+ - `react-native` version: 
+ - Platform: [e.g. Android, iOS, web]
+ - Browser (if applicable): [e.g. chrome, safari]
