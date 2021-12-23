@@ -52,8 +52,8 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
     private static final String AUTHORITY_TYPE_B2C = "B2C";
     private static final String AUTHORITY_TYPE_AAD = "AAD";
 
-    private static final Pattern aadMyOrgAuthorityPattern = Pattern.compile("https://login.microsoftonline.com/(?<tenant>.+)");
-    private static final Pattern b2cAuthorityPattern = Pattern.compile("https://.+?/tfp/(?<tenant>.+?)/.+");
+    private static final Pattern aadAuthorityPattern = Pattern.compile("https://login\\.microsoftonline\\.com/([^/]+)");
+    private static final Pattern b2cAuthorityPattern = Pattern.compile("https://([^/]+)/tfp/([^/]+)/.+");
 
     private IMultipleAccountPublicClientApplication publicClientApplication;
 
@@ -134,7 +134,7 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         }
     }
 
-    private JSONArray makeAuthoritiesJsonArray(List<String> authorityUrls, String authority) throws JSONException {
+    private JSONArray makeAuthoritiesJsonArray(List<String> authorityUrls, String authority) throws JSONException, IllegalArgumentException {
         JSONArray authoritiesJsonArr = new JSONArray();
         boolean foundDefaultAuthority = false;
 
@@ -147,37 +147,38 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
                 foundDefaultAuthority = true;
             }
 
-            // Parse this information from the authority url. Some variables will end up staying null
-            String type = null, audience_type = null, audience_tenantId = null, b2cAuthorityUrl = null;
-
+            Matcher aadAuthorityMatcher = aadAuthorityPattern.matcher(authorityUrl);
             Matcher b2cAuthorityMatcher = b2cAuthorityPattern.matcher(authorityUrl);
-            Matcher aadMyOrgAuthorityMatcher = aadMyOrgAuthorityPattern.matcher(authorityUrl);
 
-            if (authorityUrl.equals("https://login.microsoftonline.com/common")) {
-                type = AUTHORITY_TYPE_AAD;
-                audience_type = "AzureADandPersonalMicrosoftAccount";
-            } else if (authorityUrl.equals("https://login.microsoftonline.com/organizations")) {
-                type = AUTHORITY_TYPE_AAD;
-                audience_type = "AzureADMultipleOrgs";
-            } else if (authorityUrl.equals("https://login.microsoftonline.com/consumers")) {
-                type = AUTHORITY_TYPE_AAD;
-                audience_type = "PersonalMicrosoftAccount";
+            if (aadAuthorityMatcher.find()) {
+                String group = aadAuthorityMatcher.group(1);
+                if (group == null)
+                    throw new IllegalArgumentException("Could not match group 1 for regex https://login.microsoftonline.com/([^/]+) in authority \"" + authorityUrl + "\"");
+
+                JSONObject audience;
+                switch (group) {
+                    case "common":
+                        audience = new JSONObject().put("type", "AzureADandPersonalMicrosoftAccount");
+                        break;
+                    case "organizations":
+                        audience = new JSONObject().put("type", "AzureADMultipleOrgs");
+                        break;
+                    case "consumers":
+                        audience = new JSONObject().put("type", "PersonalMicrosoftAccount");
+                        break;
+                    default:
+                        // assume `group` is a tenant id
+                        audience = new JSONObject().put("type", "AzureADMyOrg").put("tenant_id", group);
+                        break;
+                }
+                authorityJsonObj.put("type", AUTHORITY_TYPE_AAD);
+                authorityJsonObj.put("audience", audience);
             } else if (b2cAuthorityMatcher.find()) {
-                type = AUTHORITY_TYPE_B2C;
-                b2cAuthorityUrl = authorityUrl;
-            } else if (aadMyOrgAuthorityMatcher.find()) {
-                type = AUTHORITY_TYPE_AAD;
-                audience_type = "AzureADMyOrg";
-                audience_tenantId = aadMyOrgAuthorityMatcher.group(1);
+                authorityJsonObj.put("type", AUTHORITY_TYPE_B2C);
+                authorityJsonObj.put("authority_url", authorityUrl);
+            } else {
+                throw new IllegalArgumentException("Authority \"" + authorityUrl + "\" doesn't match AAD regex https://login.microsoftonline.com/([^/]+) or B2C regex https://([^/]+)/tfp/([^/]+)/.+");
             }
-
-            authorityJsonObj
-                    .put("type", type)
-                    .put("authority_url", b2cAuthorityUrl)
-                    .put("audience", audience_type == null ? null : new JSONObject()
-                            .put("type", audience_type)
-                            .put("tenant_id", audience_tenantId)
-                    );
 
             authoritiesJsonArr.put(authorityJsonObj);
         }
@@ -396,8 +397,8 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
         map.putString("accessToken", result.getAccessToken());
         map.putString("expiresOn", String.format("%s", result.getExpiresOn().getTime() / 1000));
         String idToken = result.getAccount().getIdToken();
-        if (idToken==null){
-          idToken = ((IMultiTenantAccount) result.getAccount()).getTenantProfiles().get(result.getTenantId()).getIdToken();
+        if (idToken == null) {
+            idToken = ((IMultiTenantAccount) result.getAccount()).getTenantProfiles().get(result.getTenantId()).getIdToken();
         }
         map.putString("idToken", idToken);
         map.putArray("scopes", Arguments.fromArray(result.getScope()));

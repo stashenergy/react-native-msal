@@ -1,13 +1,14 @@
 import { Platform } from 'react-native';
+
 import PublicClientApplication from 'react-native-msal';
 import type {
+  MSALAccount,
+  MSALConfiguration,
   MSALInteractiveParams,
   MSALResult,
-  MSALSilentParams,
-  MSALAccount,
   MSALSignoutParams,
+  MSALSilentParams,
   MSALWebviewParams,
-  MSALConfiguration,
 } from 'react-native-msal';
 
 export interface B2CPolicies {
@@ -70,9 +71,17 @@ export class B2CClient {
     try {
       // If we don't provide an authority, the PCA will use the one we passed to it when we created it
       // (the sign in sign up policy)
-      return await this.pca.acquireToken(params);
-    } catch (error) {
-      if (error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) && this.policyUrls.passwordReset) {
+      const result = await this.pca.acquireToken(params);
+      if (!result) {
+        throw new Error('Could not sign in: Result was undefined.');
+      }
+      return result;
+    } catch (error: unknown) {
+      if (
+        error instanceof Error &&
+        error.message.includes(B2CClient.B2C_PASSWORD_CHANGE) &&
+        this.policyUrls.passwordReset
+      ) {
         return await this.resetPassword(params);
       } else {
         throw error;
@@ -87,9 +96,13 @@ export class B2CClient {
       // We provide the account that we got when we signed in, with the matching sign in sign up authority
       // Which again, we set as the default authority so we don't need to provide it explicitly.
       try {
-        return await this.pca.acquireTokenSilent({ ...params, account });
-      } catch (error) {
-        if (error.message.includes(B2CClient.B2C_EXPIRED_GRANT)) {
+        const result = await this.pca.acquireTokenSilent({ ...params, account });
+        if (!result) {
+          throw new Error('Could not acquire token silently: Result was undefined.');
+        }
+        return result;
+      } catch (error: unknown) {
+        if (error instanceof Error && error.message.includes(B2CClient.B2C_EXPIRED_GRANT)) {
           await this.pca.signOut({ ...params, account });
           return await this.signIn(params);
         } else {
@@ -143,7 +156,7 @@ export class B2CClient {
   private async getAccountForPolicy(policyUrl: string): Promise<MSALAccount | undefined> {
     const policy = policyUrl.split('/').pop();
     const accounts = await this.pca.getAccounts();
-    return accounts.find((account) => account.identifier.includes(policy.toLowerCase()));
+    return accounts.find((account) => account.identifier.includes(policy!.toLowerCase()));
   }
 }
 
@@ -151,7 +164,7 @@ function makeAuthority(authorityBase: string, policyName: string) {
   return `${authorityBase}/${policyName}`;
 }
 
-function makePolicyUrls(authorityBase, policyNames: B2CPolicies): B2CPolicies {
+function makePolicyUrls(authorityBase: string, policyNames: B2CPolicies): B2CPolicies {
   return Object.entries(policyNames).reduce(
     (prev, [key, policyName]) => ({ ...prev, [key]: makeAuthority(authorityBase, policyName) }),
     {} as B2CPolicies
