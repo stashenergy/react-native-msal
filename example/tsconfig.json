@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "react-native-msal": ["../src/index"]
+    }
+  },
+  "include": ["src", "index.js"],
+  "exclude": ["node_modules"]
+}

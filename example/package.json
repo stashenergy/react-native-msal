@@ -19,7 +19,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.0",
     "@babel/runtime": "^7.14.0",
-    "babel-preset-expo": "^8.2.3",
-    "babel-plugin-module-resolver": "^4.0.0"
+    "babel-plugin-module-resolver": "^4.0.0",
+    "babel-preset-expo": "^8.2.3"
   }
 }

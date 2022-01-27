@@ -1,5 +1,4 @@
 import { Platform } from 'react-native';
-
 import PublicClientApplication from 'react-native-msal';
 import type {
   MSALAccount,
