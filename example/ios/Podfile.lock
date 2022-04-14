@@ -59,9 +59,9 @@ PODS:
   - glog (0.3.5)
   - hermes-engine (0.7.2)
   - libevent (2.1.12)
-  - MSAL (1.1.20):
-    - MSAL/app-lib (= 1.1.20)
-  - MSAL/app-lib (1.1.20)
+  - MSAL (1.2.0):
+    - MSAL/app-lib (= 1.2.0)
+  - MSAL/app-lib (1.2.0)
   - OpenSSL-Universal (1.1.180)
   - RCT-Folly (2020.01.13.00):
     - boost-for-react-native
@@ -272,7 +272,7 @@ PODS:
     - React-perflogger (= 0.64.3)
   - React-jsinspector (0.64.3)
   - react-native-msal (1.0.3):
-    - MSAL
+    - MSAL (~> 1.2.0)
     - React-Core
   - React-perflogger (0.64.3)
   - React-RCTActionSheet (0.64.3):
@@ -490,7 +490,7 @@ SPEC CHECKSUMS:
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
-  MSAL: 3c4dc8c7337457a1ffc2bc6f72fb4c003687b50c
+  MSAL: fea0f2eaf1ecc1b67a1466ad9dc133871b901784
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
   RCTRequired: d34bf57e17cb6e3b2681f4809b13843c021feb6c
@@ -503,7 +503,7 @@ SPEC CHECKSUMS:
   React-jsi: a8b09c29521c798f1783348b37b511ba7b3dbeb3
   React-jsiexecutor: df6abc9fafbecb8e5b7a5fbc5e6d4bd017d594d5
   React-jsinspector: 34e23860273a23695342f58eed3ffd3ba10c31e0
-  react-native-msal: d3a751c3706d3542db65179515b5945ba9e49ec8
+  react-native-msal: 1bc6c7f629b9d5bca2c5344784396491ac8200d0
   React-perflogger: cc76a4254d19640f1d8ad1c66fdee800414b805c
   React-RCTActionSheet: 7448f049318d8d7e8a9a1ebb742ada721757eea8
   React-RCTAnimation: fb9b3fa1a4a9f5e6ab01b3368693ce69860ba76a
