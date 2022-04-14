@@ -6,7 +6,6 @@ import android.content.pm.Signature;
 import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -39,7 +38,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.security.MessageDigest;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -243,10 +244,11 @@ public class RNMSALModule extends ReactContextBaseJavaModule {
             }
 
             if (params.hasKey("extraQueryParameters")) {
-                List<Pair<String, String>> parameters = new ArrayList<>();
-                for (Map.Entry<String, Object> entry :
-                        params.getMap("extraQueryParameters").toHashMap().entrySet()) {
-                    parameters.add(new Pair<>(entry.getKey(), entry.getValue().toString()));
+                Iterator<Map.Entry<String, Object>> iterator = params.getMap("extraQueryParameters").getEntryIterator();
+                List<Map.Entry<String, String>> parameters = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Object> entry = iterator.next();
+                    parameters.add(new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().toString()));
                 }
                 acquireTokenParameters.withAuthorizationQueryStringParameters(parameters);
             }
